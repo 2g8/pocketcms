@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/dbutils"
-	"github.com/pocketbase/pocketbase/tools/inflector"
-	"github.com/pocketbase/pocketbase/tools/security"
-	"github.com/pocketbase/pocketbase/tools/tokenizer"
+	"github.com/2g8/pocketcms/tools/dbutils"
+	"github.com/2g8/pocketcms/tools/inflector"
+	"github.com/2g8/pocketcms/tools/security"
+	"github.com/2g8/pocketcms/tools/tokenizer"
 )
 
 // DeleteView drops the specified view name.

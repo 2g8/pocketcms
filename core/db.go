@@ -12,7 +12,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/security"
+	"github.com/2g8/pocketcms/tools/security"
 	"github.com/spf13/cast"
 )
 

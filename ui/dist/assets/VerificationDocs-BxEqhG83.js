@@ -35,7 +35,7 @@ import{S as le,i as ne,s as ie,X as F,h as b,t as j,a as U,I as Y,Z as x,_ as Te
 
         await pb.collection('${(W=s[0])==null?void 0:W.name}').confirmVerification('VERIFICATION_TOKEN');
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${s[2]}');
 
@@ -63,7 +63,7 @@ import{S as le,i as ne,s as ie,X as F,h as b,t as j,a as U,I as Y,Z as x,_ as Te
 
         await pb.collection('${(ae=n[0])==null?void 0:ae.name}').confirmVerification('VERIFICATION_TOKEN');
     `),w&5&&(S.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${n[2]}');
 

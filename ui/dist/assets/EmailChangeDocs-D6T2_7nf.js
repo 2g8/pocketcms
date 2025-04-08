@@ -53,7 +53,7 @@ import{S as se,i as oe,s as ie,X as K,h as g,t as X,a as V,I as F,Z as le,_ as R
             'YOUR_PASSWORD',
         );
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${n[2]}');
 
@@ -96,7 +96,7 @@ import{S as se,i as oe,s as ie,X as K,h as g,t as X,a as V,I as F,Z as le,_ as R
             'YOUR_PASSWORD',
         );
     `),C&5&&(I.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${o[2]}');
 

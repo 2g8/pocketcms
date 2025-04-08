@@ -22,7 +22,7 @@ const data = ${JSON.stringify(Object.assign({},d[4],x.dummyCollectionSchemaData(
 
 const record = await pb.collection('${(ct=d[0])==null?void 0:ct.name}').update('RECORD_ID', data);
     `,dart:`
-import 'package:pocketbase/pocketbase.dart';
+import 'package:2g8/pocketcms.dart';
 
 final pb = PocketBase('${d[5]}');
 
@@ -54,7 +54,7 @@ const data = ${JSON.stringify(Object.assign({},l[4],x.dummyCollectionSchemaData(
 
 const record = await pb.collection('${(pt=l[0])==null?void 0:pt.name}').update('RECORD_ID', data);
     `),s&49&&(y.dart=`
-import 'package:pocketbase/pocketbase.dart';
+import 'package:2g8/pocketcms.dart';
 
 final pb = PocketBase('${l[5]}');
 

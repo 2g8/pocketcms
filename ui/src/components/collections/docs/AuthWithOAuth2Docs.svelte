@@ -90,7 +90,7 @@
         pb.authStore.clear();
     `}
     dart={`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
         import 'package:url_launcher/url_launcher.dart';
 
         final pb = PocketBase('${backendAbsUrl}');

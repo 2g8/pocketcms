@@ -69,7 +69,7 @@
 </script>
 
 <svelte:head>
-    <title>{CommonHelper.joinNonEmpty([$pageTitle, $appName, "PocketBase"], " - ")}</title>
+    <title>{CommonHelper.joinNonEmpty([$pageTitle, $appName, "PocketCMS"], " - ")}</title>
 
     {#if window.location.protocol == "https:"}
         <link
@@ -86,7 +86,7 @@
             <a href="/" class="logo logo-sm" use:link>
                 <img
                     src="{import.meta.env.BASE_URL}images/logo.svg"
-                    alt="PocketBase logo"
+                    alt="PocketCMS"
                     width="40"
                     height="40"
                 />
@@ -94,32 +94,42 @@
 
             <nav class="main-menu">
                 <a
+                    href="/dashboard"
+                    class="menu-item"
+                    aria-label="Dashboard"
+                    use:link
+                    use:active={{ path: "/dashboard/?.*", className: "current-route" }}
+                    use:tooltip={{ text: "Dashboard", position: "right" }}
+                >
+                    <i class="ri-dashboard-3-line" />
+                </a>
+                <a
                     href="/collections"
                     class="menu-item"
-                    aria-label="Collections"
+                    aria-label="Data Tables"
                     use:link
                     use:active={{ path: "/collections/?.*", className: "current-route" }}
-                    use:tooltip={{ text: "Collections", position: "right" }}
+                    use:tooltip={{ text: "Data Tables", position: "right" }}
                 >
                     <i class="ri-database-2-line" />
                 </a>
                 <a
                     href="/logs"
                     class="menu-item"
-                    aria-label="Logs"
+                    aria-label="Visit Logs"
                     use:link
                     use:active={{ path: "/logs/?.*", className: "current-route" }}
-                    use:tooltip={{ text: "Logs", position: "right" }}
+                    use:tooltip={{ text: "Visit Logs", position: "right" }}
                 >
                     <i class="ri-line-chart-line" />
                 </a>
                 <a
                     href="/settings"
                     class="menu-item"
-                    aria-label="Settings"
+                    aria-label="Site Settings"
                     use:link
                     use:active={{ path: "/settings/?.*", className: "current-route" }}
-                    use:tooltip={{ text: "Settings", position: "right" }}
+                    use:tooltip={{ text: "Site Settings", position: "right" }}
                 >
                     <i class="ri-tools-line" />
                 </a>
@@ -145,7 +155,7 @@
                         use:link
                     >
                         <i class="ri-shield-user-line" aria-hidden="true" />
-                        <span class="txt">Manage superusers</span>
+                        <span class="txt">Manage SuperUsers</span>
                     </a>
                     <button type="button" class="dropdown-item closable" role="menuitem" on:click={logout}>
                         <i class="ri-logout-circle-line" aria-hidden="true" />

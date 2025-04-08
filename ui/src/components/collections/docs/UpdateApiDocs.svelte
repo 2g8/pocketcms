@@ -118,7 +118,7 @@ const data = ${JSON.stringify(Object.assign({}, baseData, CommonHelper.dummyColl
 const record = await pb.collection('${collection?.name}').update('RECORD_ID', data);
     `}
     dart={`
-import 'package:pocketbase/pocketbase.dart';
+import 'package:2g8/pocketcms.dart';
 
 final pb = PocketBase('${backendAbsUrl}');
 

@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/dbutils"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tests"
+	"github.com/2g8/pocketcms/tools/dbutils"
+	"github.com/2g8/pocketcms/tools/types"
 )
 
 func TestRecordQueryWithDifferentCollectionValues(t *testing.T) {

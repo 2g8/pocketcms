@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tests"
 )
 
 func TestBoolFieldBaseMethods(t *testing.T) {

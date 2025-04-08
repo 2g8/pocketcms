@@ -15,11 +15,11 @@ import (
 	"time"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
-	"github.com/pocketbase/pocketbase/tools/hook"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tests"
+	"github.com/2g8/pocketcms/tools/filesystem"
+	"github.com/2g8/pocketcms/tools/hook"
+	"github.com/2g8/pocketcms/tools/types"
 	"github.com/spf13/cast"
 )
 

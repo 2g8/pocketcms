@@ -14,7 +14,7 @@ import{S as St,i as At,s as Lt,V as Mt,W as Ht,X as Q,h as d,d as Re,t as Y,a as
 
         const result = await batch.send();
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${a[2]}');
 
@@ -87,7 +87,7 @@ import{S as St,i as At,s as Lt,V as Mt,W as Ht,X as Q,h as d,d as Re,t as Y,a as
 
         const result = await batch.send();
     `),l&5&&(m.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${e[2]}');
 

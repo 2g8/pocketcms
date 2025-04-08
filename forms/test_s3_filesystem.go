@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
-	"github.com/pocketbase/pocketbase/tools/security"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tools/filesystem"
+	"github.com/2g8/pocketcms/tools/security"
 )
 
 const (

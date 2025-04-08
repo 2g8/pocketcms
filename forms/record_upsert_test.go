@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/forms"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/forms"
+	"github.com/2g8/pocketcms/tests"
+	"github.com/2g8/pocketcms/tools/filesystem"
 )
 
 func TestRecordUpsertLoad(t *testing.T) {

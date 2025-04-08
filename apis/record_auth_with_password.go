@@ -9,9 +9,9 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/dbutils"
-	"github.com/pocketbase/pocketbase/tools/list"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tools/dbutils"
+	"github.com/2g8/pocketcms/tools/list"
 )
 
 func recordAuthWithPassword(e *core.RequestEvent) error {

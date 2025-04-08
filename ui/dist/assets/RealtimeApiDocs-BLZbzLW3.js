@@ -25,7 +25,7 @@ import{S as re,i as ae,s as be,V as pe,W as ue,J as P,h as s,d as se,t as ne,a a
         pb.collection('${(L=o[0])==null?void 0:L.name}').unsubscribe('*'); // remove all '*' topic subscriptions
         pb.collection('${(H=o[0])==null?void 0:H.name}').unsubscribe(); // remove all subscriptions in the collection
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${o[1]}');
 
@@ -82,7 +82,7 @@ import{S as re,i as ae,s as be,V as pe,W as ue,J as P,h as s,d as se,t as ne,a a
         pb.collection('${(K=e[0])==null?void 0:K.name}').unsubscribe('*'); // remove all '*' topic subscriptions
         pb.collection('${(Q=e[0])==null?void 0:Q.name}').unsubscribe(); // remove all subscriptions in the collection
     `),t&3&&(O.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${e[1]}');
 

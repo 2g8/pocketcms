@@ -12,10 +12,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pocketbase/pocketbase/tools/filesystem"
-	"github.com/pocketbase/pocketbase/tools/hook"
-	"github.com/pocketbase/pocketbase/tools/picker"
-	"github.com/pocketbase/pocketbase/tools/store"
+	"github.com/2g8/pocketcms/tools/filesystem"
+	"github.com/2g8/pocketcms/tools/hook"
+	"github.com/2g8/pocketcms/tools/picker"
+	"github.com/2g8/pocketcms/tools/store"
 )
 
 var ErrUnsupportedContentType = NewBadRequestError("Unsupported Content-Type", nil)

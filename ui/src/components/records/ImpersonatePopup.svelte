@@ -93,7 +93,7 @@
                 pb.authStore.save(token, null);
             `}
             dart={`
-                import 'package:pocketbase/pocketbase.dart';
+                import 'package:2g8/pocketcms.dart';
 
                 final token = "...";
 

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/dbutils"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tests"
+	"github.com/2g8/pocketcms/tools/dbutils"
 )
 
 func TestRecordAuthWithPassword(t *testing.T) {

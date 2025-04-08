@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/tools/types"
 )
 
 func TestJSONArrayMarshalJSON(t *testing.T) {

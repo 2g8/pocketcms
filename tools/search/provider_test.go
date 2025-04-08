@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/list"
+	"github.com/2g8/pocketcms/tools/list"
 	_ "modernc.org/sqlite"
 )
 

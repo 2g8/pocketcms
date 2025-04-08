@@ -28,7 +28,7 @@ import{S as el,i as ll,s as sl,H as ze,h as m,l as h,o as nl,u as e,v as s,L as 
             expand: 'relField1,relField2.subRelField',
         });
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${r[3]}');
 
@@ -99,7 +99,7 @@ import{S as el,i as ll,s as sl,H as ze,h as m,l as h,o as nl,u as e,v as s,L as 
             expand: 'relField1,relField2.subRelField',
         });
     `),c&9&&(w.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${l[3]}');
 

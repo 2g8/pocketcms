@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/tools/types"
 	"github.com/spf13/cast"
 	"golang.org/x/oauth2"
 )

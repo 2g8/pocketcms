@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/search"
-	"github.com/pocketbase/pocketbase/tools/security"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/tools/search"
+	"github.com/2g8/pocketcms/tools/security"
+	"github.com/2g8/pocketcms/tools/types"
 	"github.com/spf13/cast"
 )
 

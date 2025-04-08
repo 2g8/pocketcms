@@ -18,7 +18,7 @@ const record = await pb.collection('${(st=s[0])==null?void 0:st.name}').create(d
 // (optional) send an email verification request
 await pb.collection('${(at=s[0])==null?void 0:at.name}').requestVerification('test@example.com');
 `:""),dart:`
-import 'package:pocketbase/pocketbase.dart';
+import 'package:2g8/pocketcms.dart';
 
 final pb = PocketBase('${s[5]}');
 
@@ -57,7 +57,7 @@ const record = await pb.collection('${(dt=n[0])==null?void 0:dt.name}').create(d
 // (optional) send an email verification request
 await pb.collection('${(ct=n[0])==null?void 0:ct.name}').requestVerification('test@example.com');
 `:"")),o&51&&(v.dart=`
-import 'package:pocketbase/pocketbase.dart';
+import 'package:2g8/pocketcms.dart';
 
 final pb = PocketBase('${n[5]}');
 

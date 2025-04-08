@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/list"
+	"github.com/2g8/pocketcms/tools/list"
 )
 
 const StoreKeyCachedCollections = "pbAppCachedCollections"
@@ -299,7 +299,7 @@ func saveViewCollection(app App, newCollection, oldCollection *Collection) error
 // normalizeViewQueryId wraps (if necessary) the provided view query
 // with a subselect to ensure that the id column is a text since
 // currently we don't support non-string model ids
-// (see https://github.com/pocketbase/pocketbase/issues/3110).
+// (see https://github.com/2g8/pocketcms/issues/3110).
 func normalizeViewQueryId(app App, query string) (string, error) {
 	query = strings.Trim(strings.TrimSpace(query), ";")
 

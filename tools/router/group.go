@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pocketbase/pocketbase/tools/hook"
+	"github.com/2g8/pocketcms/tools/hook"
 )
 
 // (note: the struct is named RouterGroup instead of Group so that it can

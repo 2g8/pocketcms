@@ -16,11 +16,11 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/pocketbase/pocketbase/tools/filesystem/blob"
-	"github.com/pocketbase/pocketbase/tools/filesystem/internal/fileblob"
-	"github.com/pocketbase/pocketbase/tools/filesystem/internal/s3blob"
-	"github.com/pocketbase/pocketbase/tools/filesystem/internal/s3blob/s3"
-	"github.com/pocketbase/pocketbase/tools/list"
+	"github.com/2g8/pocketcms/tools/filesystem/blob"
+	"github.com/2g8/pocketcms/tools/filesystem/internal/fileblob"
+	"github.com/2g8/pocketcms/tools/filesystem/internal/s3blob"
+	"github.com/2g8/pocketcms/tools/filesystem/internal/s3blob/s3"
+	"github.com/2g8/pocketcms/tools/list"
 )
 
 // note: the same as blob.ErrNotFound for backward compatibility with earlier versions

@@ -115,7 +115,7 @@
         const result = await batch.send();
     `}
     dart={`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${backendAbsUrl}');
 

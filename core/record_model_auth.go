@@ -1,6 +1,6 @@
 package core
 
-import "github.com/pocketbase/pocketbase/tools/security"
+import "github.com/2g8/pocketcms/tools/security"
 
 // Email returns the "email" record field value (usually available with Auth collections).
 func (m *Record) Email() string {

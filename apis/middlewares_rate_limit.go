@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/hook"
-	"github.com/pocketbase/pocketbase/tools/store"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tools/hook"
+	"github.com/2g8/pocketcms/tools/store"
 )
 
 const (

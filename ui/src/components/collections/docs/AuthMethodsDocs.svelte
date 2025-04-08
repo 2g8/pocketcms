@@ -60,7 +60,7 @@
         const result = await pb.collection('${collection?.name}').listAuthMethods();
     `}
     dart={`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${backendAbsUrl}');
 

@@ -18,7 +18,7 @@ import{S as kt,i as gt,s as vt,V as St,X as L,W as _t,h as c,d as ae,Y as wt,t a
         // "logout"
         pb.authStore.clear();
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${i[5]}');
 
@@ -64,7 +64,7 @@ import{S as kt,i as gt,s as vt,V as St,X as L,W as _t,h as c,d as ae,Y as wt,t a
         // "logout"
         pb.authStore.clear();
     `),l&49&&(p.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${e[5]}');
 

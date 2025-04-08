@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pocketbase/pocketbase/core/validators"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
+	"github.com/2g8/pocketcms/core/validators"
+	"github.com/2g8/pocketcms/tools/filesystem"
 )
 
 func TestUploadedFileSize(t *testing.T) {

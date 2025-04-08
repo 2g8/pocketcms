@@ -7,10 +7,10 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/pocketbase/pocketbase/tools/auth"
-	"github.com/pocketbase/pocketbase/tools/list"
-	"github.com/pocketbase/pocketbase/tools/security"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/tools/auth"
+	"github.com/2g8/pocketcms/tools/list"
+	"github.com/2g8/pocketcms/tools/security"
+	"github.com/2g8/pocketcms/tools/types"
 	"github.com/spf13/cast"
 )
 
@@ -461,7 +461,7 @@ type OAuth2ProviderConfig struct {
 	//
 	// This usually shouldn't be needed but some OAuth2 vendors, like the LinkedIn OIDC,
 	// may require manual adjustment due to returning error if extra parameters are added to the request
-	// (https://github.com/pocketbase/pocketbase/discussions/3799#discussioncomment-7640312)
+	// (https://github.com/2g8/pocketcms/discussions/3799#discussioncomment-7640312)
 	PKCE *bool `form:"pkce" json:"pkce"`
 
 	Name         string         `form:"name" json:"name"`

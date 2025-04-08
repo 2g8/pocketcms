@@ -10,8 +10,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/osutils"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tools/osutils"
 )
 
 // DefaultInstallerFunc is the default PocketBase installer function.
@@ -20,7 +20,7 @@ import (
 // token for the systemSuperuser) to the installer UI so that users can
 // create their own custom superuser record.
 //
-// See https://github.com/pocketbase/pocketbase/discussions/5814.
+// See https://github.com/2g8/pocketcms/discussions/5814.
 func DefaultInstallerFunc(app core.App, systemSuperuser *core.Record, baseURL string) error {
 	token, err := systemSuperuser.NewStaticAuthToken(30 * time.Minute)
 	if err != nil {

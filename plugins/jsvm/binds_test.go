@@ -16,12 +16,12 @@ import (
 
 	"github.com/dop251/goja"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pocketbase/pocketbase/apis"
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tests"
-	"github.com/pocketbase/pocketbase/tools/filesystem"
-	"github.com/pocketbase/pocketbase/tools/mailer"
-	"github.com/pocketbase/pocketbase/tools/router"
+	"github.com/2g8/pocketcms/apis"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tests"
+	"github.com/2g8/pocketcms/tools/filesystem"
+	"github.com/2g8/pocketcms/tools/mailer"
+	"github.com/2g8/pocketcms/tools/router"
 	"github.com/spf13/cast"
 )
 

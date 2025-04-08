@@ -1,7 +1,7 @@
 package hook
 
 import (
-	"github.com/pocketbase/pocketbase/tools/list"
+	"github.com/2g8/pocketcms/tools/list"
 )
 
 // Tagger defines an interface for event data structs that support tags/groups/categories/etc.

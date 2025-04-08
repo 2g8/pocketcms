@@ -7,7 +7,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase/tools/osutils"
+	"github.com/2g8/pocketcms/tools/osutils"
 	"github.com/spf13/cast"
 )
 

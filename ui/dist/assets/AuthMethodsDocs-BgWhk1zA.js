@@ -7,7 +7,7 @@ import{S as Ce,i as Be,s as Te,V as Le,X as J,h as u,d as ae,t as Q,a as G,I as 
 
         const result = await pb.collection('${(ke=n[0])==null?void 0:ke.name}').listAuthMethods();
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${n[3]}');
 
@@ -23,7 +23,7 @@ import{S as Ce,i as Be,s as Te,V as Le,X as J,h as u,d as ae,t as Q,a as G,I as 
 
         const result = await pb.collection('${(ve=e[0])==null?void 0:ve.name}').listAuthMethods();
     `),t&9&&(r.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${e[3]}');
 

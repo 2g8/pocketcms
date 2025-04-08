@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/subscriptions"
+	"github.com/2g8/pocketcms/core"
+	"github.com/2g8/pocketcms/tools/subscriptions"
 )
 
 const (

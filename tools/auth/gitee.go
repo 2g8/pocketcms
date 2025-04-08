@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/pocketbase/pocketbase/tools/types"
+	"github.com/2g8/pocketcms/tools/types"
 	"golang.org/x/oauth2"
 )
 

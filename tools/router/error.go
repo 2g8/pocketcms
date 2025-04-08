@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pocketbase/pocketbase/tools/inflector"
+	"github.com/2g8/pocketcms/tools/inflector"
 )
 
 // SafeErrorItem defines a common error interface for a printable public safe error.

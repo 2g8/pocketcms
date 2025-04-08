@@ -67,7 +67,7 @@
         pb.collection('${collection?.name}').unsubscribe(); // remove all subscriptions in the collection
     `}
     dart={`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${backendAbsUrl}');
 

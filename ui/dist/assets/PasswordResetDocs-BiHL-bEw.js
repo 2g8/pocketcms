@@ -40,7 +40,7 @@ import{S as se,i as ne,s as oe,X as H,h as b,t as X,a as V,I as Z,Z as ee,_ as y
             'NEW_PASSWORD_CONFIRM',
         );
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${o[2]}');
 
@@ -79,7 +79,7 @@ import{S as se,i as ne,s as oe,X as H,h as b,t as X,a as V,I as Z,Z as ee,_ as y
             'NEW_PASSWORD_CONFIRM',
         );
     `),$&5&&(I.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${i[2]}');
 

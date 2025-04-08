@@ -12,7 +12,7 @@ import{S as je,i as xe,s as Ie,V as Ke,W as Ue,X as I,h as d,d as K,t as E,a as 
         console.log(pb.authStore.token);
         console.log(pb.authStore.record.id);
     `,dart:`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${r[3]}');
 
@@ -46,7 +46,7 @@ import{S as je,i as xe,s as Ie,V as Ke,W as Ue,X as I,h as d,d as K,t as E,a as 
         console.log(pb.authStore.token);
         console.log(pb.authStore.record.id);
     `),t&9&&(c.dart=`
-        import 'package:pocketbase/pocketbase.dart';
+        import 'package:2g8/pocketcms.dart';
 
         final pb = PocketBase('${e[3]}');
 

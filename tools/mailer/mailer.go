@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/mail"
 
-	"github.com/pocketbase/pocketbase/tools/hook"
+	"github.com/2g8/pocketcms/tools/hook"
 )
 
 // Message defines a generic email message struct.

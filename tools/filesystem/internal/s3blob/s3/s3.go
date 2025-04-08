@@ -5,7 +5,7 @@
 // such as objects list, get, copy, delete and upload.
 //
 // For more details why we don't use the official aws-sdk-go-v2, you could check
-// https://github.com/pocketbase/pocketbase/discussions/6562.
+// https://github.com/2g8/pocketcms/discussions/6562.
 //
 // Example:
 //

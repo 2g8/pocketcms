@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pocketbase/pocketbase/core"
+	"github.com/2g8/pocketcms/core"
 )
 
 const (
@@ -302,8 +302,8 @@ func (p *plugin) goBlankTemplate() (string, error) {
 	const template = `package %s
 
 import (
-	"github.com/pocketbase/pocketbase/core"
-	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/2g8/pocketcms/core"
+	m "github.com/2g8/pocketcms/migrations"
 )
 
 func init() {
@@ -344,8 +344,8 @@ func (p *plugin) goSnapshotTemplate(collections []*core.Collection) (string, err
 	const template = `package %s
 
 import (
-	"github.com/pocketbase/pocketbase/core"
-	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/2g8/pocketcms/core"
+	m "github.com/2g8/pocketcms/migrations"
 )
 
 func init() {
@@ -385,8 +385,8 @@ func (p *plugin) goCreateTemplate(collection *core.Collection) (string, error) {
 import (
 	"encoding/json"
 
-	"github.com/pocketbase/pocketbase/core"
-	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/2g8/pocketcms/core"
+	m "github.com/2g8/pocketcms/migrations"
 )
 
 func init() {
@@ -438,8 +438,8 @@ func (p *plugin) goDeleteTemplate(collection *core.Collection) (string, error) {
 import (
 	"encoding/json"
 
-	"github.com/pocketbase/pocketbase/core"
-	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/2g8/pocketcms/core"
+	m "github.com/2g8/pocketcms/migrations"
 )
 
 func init() {
@@ -624,8 +624,8 @@ func (p *plugin) goDiffTemplate(new *core.Collection, old *core.Collection) (str
 		imports += "\n\t\"encoding/json\"\n"
 	}
 
-	imports += "\n\t\"github.com/pocketbase/pocketbase/core\""
-	imports += "\n\tm \"github.com/pocketbase/pocketbase/migrations\""
+	imports += "\n\t\"github.com/2g8/pocketcms/core\""
+	imports += "\n\tm \"github.com/2g8/pocketcms/migrations\""
 	// ---
 
 	const template = `package %s

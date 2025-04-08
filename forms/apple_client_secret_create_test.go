@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/pocketbase/pocketbase/forms"
-	"github.com/pocketbase/pocketbase/tests"
+	"github.com/2g8/pocketcms/forms"
+	"github.com/2g8/pocketcms/tests"
 )
 
 func TestAppleClientSecretCreateValidateAndSubmit(t *testing.T) {
