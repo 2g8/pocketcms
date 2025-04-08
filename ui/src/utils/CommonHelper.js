@@ -1148,9 +1148,9 @@ export default class CommonHelper {
             case "auth":
                 return "ri-group-line";
             case "view":
-                return "ri-table-line";
+                return "ri-table-alt-line";
             default:
-                return "ri-folder-2-line";
+                return "ri-layout-grid-line";
         }
     }
 

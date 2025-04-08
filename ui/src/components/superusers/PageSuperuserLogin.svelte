@@ -153,7 +153,7 @@
 <FullPage>
     <div class="content txt-center m-b-base">
         <h4>
-            Superuser login
+            Admin login
             {#if totalSteps > 1}
                 ({currentStep}/{totalSteps})
             {/if}

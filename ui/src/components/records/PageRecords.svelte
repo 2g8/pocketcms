@@ -201,7 +201,7 @@
             <div class="btns-group">
                 <button
                     type="button"
-                    class="btn btn-outline"
+                    class="btn btn-outline hidden"
                     on:click={() => collectionDocsPanel?.show($activeCollection)}
                 >
                     <i class="ri-code-s-slash-line" />

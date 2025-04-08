@@ -1,6 +1,6 @@
 /.vscode/
 .idea
-
+/ui/dist/
 .DS_Store
 
 # goreleaser builds folder
