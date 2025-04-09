@@ -15,7 +15,7 @@
                         width="40"
                         height="40"
                     />
-                    <span class="txt">Pocket<strong>CMS</strong> backend</span>
+                    <span class="txt">Pocket<strong>CMS</strong>&nbsp;&nbsp;&nbsp;&nbsp;</span>
                 </figure>
             </div>
             <div class="clearfix" />

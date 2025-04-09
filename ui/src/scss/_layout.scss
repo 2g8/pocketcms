@@ -15,6 +15,7 @@
     i {
         font-size: 22px;
         line-height: 1;
+        margin-top: -1px;
     }
     .menu-item {
         position: relative;
@@ -30,7 +31,7 @@
         min-width: var(--menuItemSize);
         min-height: var(--menuItemSize);
         border: 1px solid transparent;
-        border-radius: var(--baseRadius);
+        border-radius: var(--lgRadius);
         transition: background var(--baseAnimationSpeed),
                     border var(--baseAnimationSpeed);
         &:focus-visible,
