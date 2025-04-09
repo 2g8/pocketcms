@@ -60,7 +60,7 @@ button {
         pointer-events: none;
         user-select: none;
         backface-visibility: hidden;
-        background: var(--primaryColor);
+        background: var(--successColor);
         transition: filter var(--baseAnimationSpeed),
                     opacity var(--baseAnimationSpeed),
                     transform var(--baseAnimationSpeed),

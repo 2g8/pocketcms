@@ -2,18 +2,18 @@
 // -------------------------------------------------------------------
 
 .main-menu {
-    --menuItemSize: 45px;
+    --menuItemSize: 38px;
 
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    row-gap: var(--smSpacing);
+    row-gap: var(--xsSpacing);
     font-size: var(--xlFontSize);
     color: var(--txtPrimaryColor);
     i {
-        font-size: 24px;
+        font-size: 22px;
         line-height: 1;
     }
     .menu-item {
@@ -29,8 +29,8 @@
         color: inherit;
         min-width: var(--menuItemSize);
         min-height: var(--menuItemSize);
-        border: 2px solid transparent;
-        border-radius: var(--lgRadius);
+        border: 1px solid transparent;
+        border-radius: var(--baseRadius);
         transition: background var(--baseAnimationSpeed),
                     border var(--baseAnimationSpeed);
         &:focus-visible,
