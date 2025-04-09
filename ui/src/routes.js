@@ -1,4 +1,9 @@
 import PageIndex from "@/components/PageIndex.svelte";
+import PageCmsDashboardIndex from "@/components/cms/PageCmsDashboardIndex.svelte";
+import PageCmsPostsIndex from "@/components/cms/PageCmsPostsIndex.svelte";
+import PageCmsMembersIndex from "@/components/cms/PageCmsMembersIndex.svelte";
+import PageCmsNewslettersIndex from "@/components/cms/PageCmsNewslettersIndex.svelte";
+import PageCmsSubscriptionsIndex from "@/components/cms/PageCmsSubscriptionsIndex.svelte";
 import PageLogs from "@/components/logs/PageLogs.svelte";
 import PageRecords from "@/components/records/PageRecords.svelte";
 import PageApplication from "@/components/settings/PageApplication.svelte";
@@ -38,6 +43,36 @@ const routes = {
         asyncComponent: () => import("@/components/superusers/PageSuperuserConfirmPasswordReset.svelte"),
         conditions: [(_) => !ApiClient.authStore.isValid],
         userData: { showAppSidebar: false },
+    }),
+
+    "/dashboard": wrap({
+        component: PageCmsDashboardIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/posts": wrap({
+        component: PageCmsPostsIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/members": wrap({
+        component: PageCmsMembersIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/newsletters": wrap({
+        component: PageCmsNewslettersIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/subscriptions": wrap({
+        component: PageCmsSubscriptionsIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
     }),
 
     "/collections": wrap({

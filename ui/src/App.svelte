@@ -114,27 +114,27 @@
                     <i class="ri-article-line" />
                 </a>
                 <a
-                    href="/collections?collection=_pb_users_auth_"
+                    href="/members"
                     class="menu-item"
                     aria-label="Members"
                     use:link
-                    use:active={{ path: "/collections\\?collection=_pb_users_auth_?.*", className: "current-route" }}
+                    use:active={{ path: "/members", className: "current-route" }}
                     use:tooltip={{ text: "Members", position: "right" }}
                 >
                     <i class="ri-group-line" />
                 </a>
                 <a
-                    href="/newsletter"
+                    href="/newsletters"
                     class="menu-item"
-                    aria-label="Newsletter"
+                    aria-label="Newsletters"
                     use:link
-                    use:active={{ path: "/newsletter/?.*", className: "current-route" }}
-                    use:tooltip={{ text: "Newsletter", position: "right" }}
+                    use:active={{ path: "/newsletters/?.*", className: "current-route" }}
+                    use:tooltip={{ text: "Newsletters", position: "right" }}
                 >
                     <i class="ri-mail-send-line" />
                 </a>
                 <a
-                    href="/subscriptions "
+                    href="/subscriptions"
                     class="menu-item"
                     aria-label="Subscriptions"
                     use:link
@@ -148,7 +148,7 @@
                     class="menu-item"
                     aria-label="Data Tables"
                     use:link
-                    use:active={{ path: "/collections(?!.*_pb_users_auth_).*", className: "current-route" }}
+                    use:active={{ path: "/collections?.*", className: "current-route" }}
                     use:tooltip={{ text: "Data Tables", position: "right" }}
                 >
                     <i class="ri-database-2-line" />

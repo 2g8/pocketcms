@@ -6,7 +6,7 @@
 
     function handler() {
         if (ApiClient.authStore.isValid) {
-            replace("/collections");
+            replace("/dashboard");
         } else {
             ApiClient.logout();
         }
