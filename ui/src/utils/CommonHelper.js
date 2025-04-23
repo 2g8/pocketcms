@@ -1127,6 +1127,8 @@ export default class CommonHelper {
                 if (field?.maxSelect != 1) {
                     val = [val];
                 }
+            } else if (field.type == "geoPoint") {
+                val = {"lon": 0, "lat": 0};
             } else {
                 val = "test";
             }
@@ -1161,7 +1163,7 @@ export default class CommonHelper {
      * @return {String}
      */
     static getFieldTypeIcon(type) {
-        switch (type?.toLowerCase()) {
+        switch (type) {
             case "primary":
                 return "ri-key-line";
             case "text":
@@ -1190,6 +1192,8 @@ export default class CommonHelper {
                 return "ri-lock-password-line";
             case "autodate":
                 return "ri-calendar-check-line";
+            case "geoPoint":
+                return "ri-map-pin-2-line";
             default:
                 return "ri-star-s-line";
         }
@@ -1233,6 +1237,10 @@ export default class CommonHelper {
 
         if (field?.type === "bool") {
             return "false";
+        }
+
+        if (field?.type === "geoPoint") {
+            return '{"lon":0,"lat":0}';
         }
 
         if (field?.type === "json") {
@@ -1774,7 +1782,12 @@ export default class CommonHelper {
 
         const fields = collection.fields || [];
         for (const field of fields) {
-            CommonHelper.pushUnique(result, prefix + field.name);
+            if (field.type == "geoPoint") {
+                CommonHelper.pushUnique(result, prefix + field.name + ".lon");
+                CommonHelper.pushUnique(result, prefix + field.name + ".lat");
+            } else {
+                CommonHelper.pushUnique(result, prefix + field.name);
+            }
         }
 
         return result;

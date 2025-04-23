@@ -482,6 +482,16 @@ declare class FileField implements core.FileField {
   constructor(data?: Partial<core.FileField>)
 }
 
+interface GeoPointField extends core.GeoPointField{} // merge
+/**
+ * {@inheritDoc core.GeoPointField}
+ *
+ * @group PocketBase
+ */
+declare class GeoPointField implements core.GeoPointField {
+  constructor(data?: Partial<core.GeoPointField>)
+}
+
 interface MailerMessage extends mailer.Message{} // merge
 /**
  * MailerMessage defines a single email message.
@@ -608,19 +618,27 @@ declare class Timezone implements time.Location {
 interface DateTime extends types.DateTime{} // merge
 /**
  * DateTime defines a single DateTime type instance.
+ * The returned date is always represented in UTC.
  *
  * Example:
  *
  * ` + "```" + `js
  * const dt0 = new DateTime() // now
  *
+ * // full datetime string
  * const dt1 = new DateTime('2023-07-01 00:00:00.000Z')
+ *
+ * // datetime string with default "parse in" timezone location
+ * //
+ * // similar to new DateTime('2023-07-01 00:00:00 +01:00') or new DateTime('2023-07-01 00:00:00 +02:00')
+ * // but accounts for the daylight saving time (DST)
+ * const dt2 = new DateTime('2023-07-01 00:00:00', 'Europe/Amsterdam')
  * ` + "```" + `
  *
  * @group PocketBase
  */
 declare class DateTime implements types.DateTime {
-  constructor(date?: string)
+  constructor(date?: string, defaultParseInLocation?: string)
 }
 
 interface ValidationError extends ozzo_validation.Error{} // merge
@@ -1077,7 +1095,7 @@ declare namespace $http {
    * console.log(res.statusCode) // the response HTTP status code
    * console.log(res.headers)    // the response headers (eg. res.headers['X-Custom'][0])
    * console.log(res.cookies)    // the response cookies (eg. res.cookies.sessionId.value)
-   * console.log(res.raw)        // the response body as plain text
+   * console.log(res.body)       // the response body as raw bytes slice
    * console.log(res.json)       // the response body as parsed json array or map
    * ` + "```" + `
    */
@@ -1094,8 +1112,11 @@ declare namespace $http {
     statusCode: number,
     headers:    { [key:string]: Array<string> },
     cookies:    { [key:string]: http.Cookie },
-    raw:        string,
     json:       any,
+    body:       Array<number>,
+
+    // @deprecated please use toString(result.body) instead
+    raw: string,
   };
 }
 

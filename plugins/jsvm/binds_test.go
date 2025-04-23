@@ -44,7 +44,7 @@ func TestBaseBindsCount(t *testing.T) {
 	vm := goja.New()
 	baseBinds(vm)
 
-	testBindsCount(vm, "this", 33, t)
+	testBindsCount(vm, "this", 34, t)
 }
 
 func TestBaseBindsSleep(t *testing.T) {
@@ -399,6 +399,10 @@ func TestBaseBindsNamedFields(t *testing.T) {
 			"new FileField({name: 'test'})",
 			isType[*core.FileField],
 		},
+		{
+			"new GeoPointField({name: 'test'})",
+			isType[*core.GeoPointField],
+		},
 	}
 
 	for _, s := range scenarios {
@@ -568,15 +572,35 @@ func TestBaseBindsDateTime(t *testing.T) {
 	baseBinds(vm)
 
 	_, err := vm.RunString(`
-		const v0 = new DateTime();
-		if (v0.isZero()) {
-			throw new Error('Expected to fallback to now, got zero value');
+		const now = new DateTime();
+		if (now.isZero()) {
+			throw new Error('(now) Expected to fallback to now, got zero value');
 		}
 
-		const v1 = new DateTime('2023-01-01 00:00:00.000Z');
-		const expected = "2023-01-01 00:00:00.000Z"
-		if (v1.string() != expected) {
-			throw new Error('Expected ' + expected + ', got ', v1.string());
+		const nowPart = now.string().substring(0, 19)
+
+		const scenarios = [
+			// empty datetime string and no custom location
+			{date: new DateTime(''), expected: nowPart},
+			// empty datetime string and custom default location (should be ignored)
+			{date: new DateTime('', 'Asia/Tokyo'), expected: nowPart},
+			// full datetime string and no custom default location
+			{date: new DateTime('2023-01-01 00:00:00.000Z'), expected: "2023-01-01 00:00:00.000Z"},
+			// invalid location (fallback to UTC)
+			{date: new DateTime('2025-10-26 03:00:00', 'invalid'), expected: "2025-10-26 03:00:00.000Z"},
+			// CET
+			{date: new DateTime('2025-10-26 03:00:00', 'Europe/Amsterdam'), expected: "2025-10-26 02:00:00.000Z"},
+			// CEST
+			{date: new DateTime('2025-10-26 01:00:00', 'Europe/Amsterdam'), expected: "2025-10-25 23:00:00.000Z"},
+			// with timezone/offset in the date string (aka. should ignore the custom default location)
+			{date: new DateTime('2025-10-26 01:00:00 +0200', 'Asia/Tokyo'), expected: "2025-10-25 23:00:00.000Z"},
+		];
+
+		for (let i = 0; i < scenarios.length; i++) {
+			const s = scenarios[i];
+			if (!s.date.string().includes(s.expected)) {
+				throw new Error('(' + i + ') ' + s.date.string() + ' does not contain expected ' + s.expected);
+			}
 		}
 	`)
 	if err != nil {
@@ -1363,6 +1387,13 @@ func TestHttpClientBindsSend(t *testing.T) {
 			headers: {"content-type": "text/plain"}, // should be ignored
 		})
 
+		// raw body response field check
+		const test4 = $http.send({
+			method: "post",
+			url:    testURL,
+			body:   'test',
+		})
+
 		const scenarios = [
 			[test0, {
 				"statusCode": "400",
@@ -1395,6 +1426,13 @@ func TestHttpClientBindsSend(t *testing.T) {
 					"multipart/form-data; boundary="
 				],
 			}],
+			[test4, {
+				"statusCode":              "200",
+				"headers.X-Custom.0":      "custom_header",
+				"cookies.sessionId.value": "123456",
+				// {"body":"test","headers":{"accept_encoding":"gzip","content_length":"4","user_agent":"Go-http-client/1.1"},"method":"POST"}
+				"body": [123,34,98,111,100,121,34,58,34,116,101,115,116,34,44,34,104,101,97,100,101,114,115,34,58,123,34,97,99,99,101,112,116,95,101,110,99,111,100,105,110,103,34,58,34,103,122,105,112,34,44,34,99,111,110,116,101,110,116,95,108,101,110,103,116,104,34,58,34,52,34,44,34,117,115,101,114,95,97,103,101,110,116,34,58,34,71,111,45,104,116,116,112,45,99,108,105,101,110,116,47,49,46,49,34,125,44,34,109,101,116,104,111,100,34,58,34,80,79,83,84,34,125],
+			}],
 		]
 
 		for (let scenario of scenarios) {
@@ -1408,13 +1446,13 @@ func TestHttpClientBindsSend(t *testing.T) {
 					// check for partial match(es)
 					for (let exp of expectation) {
 						if (!value.includes(exp)) {
-							throw new Error('Expected ' + key + ' to contain ' + exp + ', got: ' + result.raw);
+							throw new Error('Expected ' + key + ' to contain ' + exp + ', got: ' + toString(result.body));
 						}
 					}
 				} else {
 					// check for direct match
 					if (value != expectation) {
-						throw new Error('Expected ' + key + ' ' + expectation + ', got: ' + result.raw);
+						throw new Error('Expected ' + key + ' ' + expectation + ', got: ' + toString(result.body));
 					}
 				}
 			}
