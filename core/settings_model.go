@@ -124,6 +124,7 @@ type settings struct {
 	Backups      BackupsConfig      `form:"backups" json:"backups"`
 	S3           S3Config           `form:"s3" json:"s3"`
 	Meta         MetaConfig         `form:"meta" json:"meta"`
+	Seo          SeoConfig          `form:"seo" json:"seo"`
 	RateLimits   RateLimitsConfig   `form:"rateLimits" json:"rateLimits"`
 	TrustedProxy TrustedProxyConfig `form:"trustedProxy" json:"trustedProxy"`
 	Batch        BatchConfig        `form:"batch" json:"batch"`
@@ -143,11 +144,24 @@ func newDefaultSettings() *Settings {
 		isNew: true,
 		settings: settings{
 			Meta: MetaConfig{
-				AppName:       "Acme",
+				AppName:       "PocketCMS",
 				AppURL:        "http://localhost:8090",
 				HideControls:  false,
 				SenderName:    "Support",
 				SenderAddress: "support@example.com",
+			},
+			Seo: SeoConfig{
+				Title:       "PocketCMS",
+				Description: "new description",
+				Keywords:    "new keywords",
+				Author:      "new author",
+				Robots:      "new robots",
+				Viewport:    "width=device-width, initial-scale=1.0",
+				Canonical:   "https://example.com/current-page",
+				Favicon:     "/favicon.ico",
+				Alternate:   `{"en":"https://example.com/en/current-page","zh":"https://example.com/zh/current-page"}`,
+				OG:          `{"title":"new og title","description":"new og description","image":"new og image","url":"new og url","type":"new og type","site_name":"Site Name"}`,
+				Twitter:     `{"card":"summary_large_image","site":"@username","creator":"@username","title":"new twitter title","description":"new twitter description","image":"new twitter image"}`,
 			},
 			Logs: LogsConfig{
 				MaxDays: 5,
@@ -280,6 +294,7 @@ func (s *Settings) PostValidate(ctx context.Context, app App) error {
 
 	return validation.ValidateStructWithContext(ctx, s,
 		validation.Field(&s.Meta),
+		validation.Field(&s.Seo),
 		validation.Field(&s.Logs),
 		validation.Field(&s.SMTP),
 		validation.Field(&s.S3),
@@ -503,6 +518,39 @@ func (c MetaConfig) Validate() error {
 		validation.Field(&c.AppURL, validation.Required, is.URL),
 		validation.Field(&c.SenderName, validation.Required, validation.Length(1, 255)),
 		validation.Field(&c.SenderAddress, is.EmailFormat, validation.Required),
+	)
+}
+
+// -------------------------------------------------------------------
+// SeoConfig defines the SEO settings for the application.
+type SeoConfig struct {
+	Title       string `form:"title" json:"title"`
+	Description string `form:"description" json:"description"`
+	Keywords    string `form:"keywords" json:"keywords"`
+	Author      string `form:"author" json:"author"`
+	Robots      string `form:"robots" json:"robots"`
+	Viewport    string `form:"viewport" json:"viewport"`
+	Canonical   string `form:"canonical" json:"canonical"`
+	Favicon     string `form:"favicon" json:"favicon"`
+	Alternate   string `form:"alternate" json:"alternate"`
+	OG          string `form:"og" json:"og"`
+	Twitter     string `form:"twitter" json:"twitter"`
+}
+
+// Validate makes SeoConfig validatable by implementing [validation.Validatable] interface.
+func (c SeoConfig) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Title, validation.Required, validation.Length(1, 255)),
+		validation.Field(&c.Description, validation.Length(0, 500)),
+		validation.Field(&c.Keywords, validation.Length(0, 500)),
+		validation.Field(&c.Author, validation.Length(0, 255)),
+		validation.Field(&c.Robots, validation.Length(0, 255)),
+		validation.Field(&c.Viewport, validation.Length(0, 255)),
+		validation.Field(&c.Canonical, is.URL),
+		validation.Field(&c.Favicon, validation.Length(0, 255)),
+		validation.Field(&c.Alternate, validation.Length(0, 10000)), // JSON string
+		validation.Field(&c.OG, validation.Length(0, 10000)), // JSON string
+		validation.Field(&c.Twitter, validation.Length(0, 10000)), // JSON string
 	)
 }
 

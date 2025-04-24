@@ -12,7 +12,9 @@ import PageCrons from "@/components/settings/PageCrons.svelte";
 import PageExportCollections from "@/components/settings/PageExportCollections.svelte";
 import PageImportCollections from "@/components/settings/PageImportCollections.svelte";
 import PageMail from "@/components/settings/PageMail.svelte";
+import PageSeo from "@/components/settings/PageSeo.svelte";
 import PageStorage from "@/components/settings/PageStorage.svelte";
+
 import PageSuperuserLogin from "@/components/superusers/PageSuperuserLogin.svelte";
 import ApiClient from "@/utils/ApiClient";
 import { isTokenExpired } from "pocketbase";
@@ -95,6 +97,12 @@ const routes = {
 
     "/settings/mail": wrap({
         component: PageMail,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/settings/seo": wrap({
+        component: PageSeo,
         conditions: [(_) => ApiClient.authStore.isValid],
         userData: { showAppSidebar: true },
     }),

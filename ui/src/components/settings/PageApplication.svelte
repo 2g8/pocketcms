@@ -12,7 +12,7 @@
     import TrustedProxyAccordion from "@/components/settings/TrustedProxyAccordion.svelte";
     import RateLimitAccordion from "@/components/settings/RateLimitAccordion.svelte";
 
-    $pageTitle = "Application settings";
+    $pageTitle = "Site settings";
 
     let originalFormSettings = {};
     let formSettings = {};
@@ -67,7 +67,7 @@
 
             setErrors({});
 
-            addSuccessToast("Successfully saved application settings.");
+            addSuccessToast("Successfully saved site settings.");
         } catch (err) {
             ApiClient.error(err);
         }
@@ -174,7 +174,7 @@
     <header class="page-header">
         <nav class="breadcrumbs">
             <div class="breadcrumb-item">Settings</div>
-            <div class="breadcrumb-item">Application</div>
+            <div class="breadcrumb-item">Site settings</div>
         </nav>
     </header>
 
@@ -186,7 +186,7 @@
                 <div class="grid">
                     <div class="col-lg-6">
                         <Field class="form-field required" name="meta.appName" let:uniqueId>
-                            <label for={uniqueId}>Application name</label>
+                            <label for={uniqueId}>Site name</label>
                             <input
                                 type="text"
                                 id={uniqueId}
@@ -198,7 +198,7 @@
 
                     <div class="col-lg-6">
                         <Field class="form-field required" name="meta.appURL" let:uniqueId>
-                            <label for={uniqueId}>Application URL</label>
+                            <label for={uniqueId}>Site URL</label>
                             <input type="text" id={uniqueId} required bind:value={formSettings.meta.appURL} />
                         </Field>
                     </div>

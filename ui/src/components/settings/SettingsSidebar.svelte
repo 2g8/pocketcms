@@ -10,7 +10,16 @@
         <div class="sidebar-title">System</div>
         <a href="/settings" class="sidebar-list-item" use:active={{ path: "/settings" }} use:link>
             <i class="ri-home-gear-line" aria-hidden="true" />
-            <span class="txt">Application</span>
+            <span class="txt">Site settings</span>
+        </a>
+        <a
+            href="/settings/seo"
+            class="sidebar-list-item"
+            use:active={{ path: "/settings/seo/?.*" }}
+            use:link
+        >
+            <i class="ri-seo-line" aria-hidden="true" />
+            <span class="txt">Seo settings</span>
         </a>
         <a
             href="/settings/mail"
