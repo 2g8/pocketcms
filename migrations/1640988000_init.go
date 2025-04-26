@@ -78,9 +78,9 @@ func init() {
 			return fmt.Errorf("_superusers error: %w", err)
 		}
 
-		if err := createUsersCollection(txApp); err != nil {
-			return fmt.Errorf("users error: %w", err)
-		}
+		//if err := createUsersCollection(txApp); err != nil {
+			//return fmt.Errorf("users error: %w", err)
+		//}
 
 		return nil
 	}, func(txApp core.App) error {
