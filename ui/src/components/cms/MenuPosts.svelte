@@ -51,9 +51,9 @@
     </div>
 
     <footer class="sidebar-footer">
-        <button type="button" class="btn btn-block btn-outline">
+        <a href="/posts/new" class="btn btn-block btn-outline" use:link>
             <i class="ri-add-line" />
             <span class="txt">New post</span>
-        </button>
+        </a>
     </footer>
 </PageSidebar>

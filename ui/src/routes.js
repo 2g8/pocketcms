@@ -1,6 +1,7 @@
 import PageIndex from "@/components/PageIndex.svelte";
 import PageCmsDashboardIndex from "@/components/cms/PageCmsDashboardIndex.svelte";
 import PageCmsPostsIndex from "@/components/cms/PageCmsPostsIndex.svelte";
+import PageCmsPostsNew from "@/components/cms/PageCmsPostsNew.svelte";
 import PageCmsMembersIndex from "@/components/cms/PageCmsMembersIndex.svelte";
 import PageCmsNewslettersIndex from "@/components/cms/PageCmsNewslettersIndex.svelte";
 import PageCmsSubscriptionsIndex from "@/components/cms/PageCmsSubscriptionsIndex.svelte";
@@ -55,6 +56,12 @@ const routes = {
 
     "/posts": wrap({
         component: PageCmsPostsIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/posts/new": wrap({
+        component: PageCmsPostsNew,
         conditions: [(_) => ApiClient.authStore.isValid],
         userData: { showAppSidebar: true },
     }),
