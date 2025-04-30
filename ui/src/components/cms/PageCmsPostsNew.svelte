@@ -8,8 +8,12 @@
     import PageWrapper from "@/components/base/PageWrapper.svelte";
     import Field from "@/components/base/Field.svelte";
     import MenuPosts from "@/components/cms/MenuPosts.svelte";
+    import PostSettingPanel from "@/components/cms/PostSettingPanel.svelte";
+    import NovelEditor from "../base/NovelEditor.svelte";
     
     $pageTitle = "New Post";
+    
+    let settingPanel;
 
     let title = "";
     let slug = "";
@@ -28,7 +32,7 @@
     
     function generateSlug() {
         if (title && !slug) {
-            slug = CommonHelper.slugify(title);
+            slug = CommonHelper.slugify(title.toLowerCase(),'-');
         }
     }
 
@@ -80,11 +84,31 @@
             <div class="breadcrumb-item">Posts</div>
             <div class="breadcrumb-item">New Post</div>
         </nav>
+        <div class="flex-fill"></div>
+        <button 
+            type="button" 
+            class="btn btn-circle btn-transparent" 
+            on:click={() => settingPanel.show()}
+            aria-label="Post settings"
+        >
+            <i class="ri-layout-right-2-line" aria-hidden="true"></i>
+        </button>
     </header>
 
     <div class="wrapper">
         <form class="panel" autocomplete="off" on:submit|preventDefault={handleSubmit}>
             <div class="grid">
+                <div class="col-lg-12">
+                    <Field class="form-field" name="feature_image" let:uniqueId>
+                        <label for={uniqueId}>Featured Image URL</label>
+                        <input 
+                            type="text"
+                            id={uniqueId}
+                            bind:value={feature_image}
+                            placeholder="Enter image URL"
+                        />
+                    </Field>
+                </div>
                 <div class="col-lg-12">
                     <Field class="form-field required" name="title" let:uniqueId>
                         <label for={uniqueId}>Title</label>
@@ -100,147 +124,15 @@
                 </div>
 
                 <div class="col-lg-12">
-                    <Field class="form-field required" name="slug" let:uniqueId>
-                        <label for={uniqueId}>Slug</label>
-                        <input 
-                            type="text"
-                            id={uniqueId}
-                            bind:value={slug}
-                            placeholder="Post URL identifier"
-                            required
-                        />
-                    </Field>
-                </div>
-
-                <div class="col-lg-12">
-                    <Field class="form-field" name="custom_excerpt" let:uniqueId>
-                        <label for={uniqueId}>Excerpt</label>
-                        <textarea 
-                            id={uniqueId}
-                            bind:value={custom_excerpt}
-                            placeholder="Post excerpt"
-                            rows="3"
-                        ></textarea>
-                    </Field>
-                </div>
-
-                <div class="col-lg-12">
                     <Field class="form-field required" name="lexical" let:uniqueId>
                         <label for={uniqueId}>Content</label>
-                        <textarea 
-                            id={uniqueId}
+                        <NovelEditor
                             bind:value={lexical}
+                            id={uniqueId}
+                            row="22"
                             placeholder="Enter post content"
-                            rows="10"
-                            required
-                        ></textarea>
-                    </Field>
-                </div>
-
-                <div class="col-lg-12">
-                    <Field class="form-field" name="feature_image" let:uniqueId>
-                        <label for={uniqueId}>Featured Image URL</label>
-                        <input 
-                            type="text"
-                            id={uniqueId}
-                            bind:value={feature_image}
-                            placeholder="Enter image URL"
                         />
                     </Field>
-                </div>
-
-                <div class="col-lg-6">
-                    <Field class="form-field" name="status" let:uniqueId>
-                        <label for={uniqueId}>Status</label>
-                        <select id={uniqueId} bind:value={status}>
-                            <option value="draft">Draft</option>
-                            <option value="published">Published</option>
-                        </select>
-                    </Field>
-                </div>
-
-                <div class="col-lg-6">
-                    <Field class="form-field" name="visibility" let:uniqueId>
-                        <label for={uniqueId}>Visibility</label>
-                        <select id={uniqueId} bind:value={visibility}>
-                            <option value="public">Public</option>
-                            <option value="members">Members only</option>
-                            <option value="paid">Paid members</option>
-                        </select>
-                    </Field>
-                </div>
-
-                <div class="col-lg-6">
-                    <Field class="form-field form-field-toggle" name="featured" let:uniqueId>
-                        <input 
-                            type="checkbox"
-                            id={uniqueId}
-                            bind:checked={featured}
-                        />
-                        <label for={uniqueId}>
-                            <span class="txt">Featured post</span>
-                        </label>
-                    </Field>
-                </div>
-
-                <div class="col-lg-6">
-                    <Field class="form-field form-field-toggle" name="show_title_and_feature_image" let:uniqueId>
-                        <input 
-                            type="checkbox"
-                            id={uniqueId}
-                            bind:checked={show_title_and_feature_image}
-                        />
-                        <label for={uniqueId}>
-                            <span class="txt">Show title and featured image</span>
-                        </label>
-                    </Field>
-                </div>
-
-                <div class="col-lg-12">
-                    <div class="accordions">
-                        <details class="accordion">
-                            <summary class="accordion-header">Advanced Settings</summary>
-                            <div class="accordion-content">
-                                <div class="grid">
-                                    <div class="col-lg-6">
-                                        <Field class="form-field" name="canonical_url" let:uniqueId>
-                                            <label for={uniqueId}>规范URL</label>
-                                            <input 
-                                                type="text"
-                                                id={uniqueId}
-                                                bind:value={canonical_url}
-                                                placeholder="Canonical URL"
-                                            />
-                                        </Field>
-                                    </div>
-                                    
-                                    <div class="col-lg-12">
-                                        <Field class="form-field" name="codeinjection_head" let:uniqueId>
-                                            <label for={uniqueId}>Head代码注入</label>
-                                            <textarea 
-                                                id={uniqueId}
-                                                bind:value={codeinjection_head}
-                                                placeholder="Code to inject in <head>"
-                                                rows="3"
-                                            ></textarea>
-                                        </Field>
-                                    </div>
-
-                                    <div class="col-lg-12">
-                                        <Field class="form-field" name="codeinjection_foot" let:uniqueId>
-                                            <label for={uniqueId}>Footer代码注入</label>
-                                            <textarea 
-                                                id={uniqueId}
-                                                bind:value={codeinjection_foot}
-                                                placeholder="Code to inject before </body>"
-                                                rows="3"
-                                            ></textarea>
-                                        </Field>
-                                    </div>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
                 </div>
             </div>
 
@@ -258,6 +150,23 @@
         </form>
     </div>
 </PageWrapper>
+
+<PostSettingPanel 
+    bind:this={settingPanel} 
+    postData={{ 
+        slug, 
+        publishDate: "", 
+        tags: "", 
+        visibility, 
+        excerpt: custom_excerpt, 
+        author: "" 
+    }} 
+    on:save={(e) => {
+        slug = e.detail.slug;
+        visibility = e.detail.visibility;
+        custom_excerpt = e.detail.excerpt;
+    }}
+/>
 
 <style>
     .form-container {
