@@ -1477,6 +1477,8 @@ export default class CommonHelper {
                 "autoresize",
                 "autolink",
                 "lists",
+                "quickbars",
+                "checklist", // Paid plugin
                 "link",
                 "image",
                 "searchreplace",
@@ -1486,7 +1488,11 @@ export default class CommonHelper {
                 "code",
                 "codesample",
                 "directionality",
+                "emoticons",
+                "wordcount",
+                "slashcmd", // Pocketcms plugin
             ],
+            quickbars_insert_toolbar: false,
             codesample_global_prismjs: true,
             codesample_languages: [
                 { text: 'HTML/XML', value: 'markup' },
@@ -1514,7 +1520,7 @@ export default class CommonHelper {
                 { text: 'Julia', value: 'julia' },
                 { text: 'Haskell', value: 'haskell' },
             ],
-            toolbar: "styles | alignleft aligncenter alignright | bold italic forecolor backcolor | bullist numlist | link image_picker table codesample direction | code fullscreen",
+            toolbar: "undo redo | styles | alignleft aligncenter alignright | bold italic forecolor backcolor | bullist numlist checklist | link image_picker table codesample direction emoticons | code fullscreen",
             paste_postprocess: (editor, args) => {
                 cleanupPastedNode(args.node);
             },
