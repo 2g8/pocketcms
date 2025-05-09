@@ -210,6 +210,8 @@
         z-index: var(--page-wrapper-z-index);
     }
     :global(.tox.tox-tinymce.tox-fullscreen){
-        margin-left: calc(var(--appSidebarWidth) + var(--pageSidebarWidth) + 1px);
+        margin-left: calc(var(--appSidebarWidth) + 1px); 
+        /* margin-left: calc(var(--appSidebarWidth) + var(--pageSidebarWidth) + 1px); 
+        */
     }
 </style>

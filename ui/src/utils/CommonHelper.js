@@ -1492,7 +1492,10 @@ export default class CommonHelper {
                 "wordcount",
                 "slashcmd", // Pocketcms plugin
             ],
+            toolbar: "undo redo | styles | alignleft aligncenter alignright | bold italic forecolor backcolor | bullist numlist checklist | link image_picker table emoticons media | searchreplace | direction code fullscreen",
+            extended_valid_elements: "+iframe[src|width|height|name|align|class]",
             quickbars_insert_toolbar: false,
+            quickbars_selection_toolbar: 'bold italic underline strikethrough | cut copy | quicklink h2 h3 blockquote',
             codesample_global_prismjs: true,
             codesample_languages: [
                 { text: 'HTML/XML', value: 'markup' },
@@ -1520,7 +1523,6 @@ export default class CommonHelper {
                 { text: 'Julia', value: 'julia' },
                 { text: 'Haskell', value: 'haskell' },
             ],
-            toolbar: "undo redo | styles | alignleft aligncenter alignright | bold italic forecolor backcolor | bullist numlist checklist | link image_picker table codesample direction emoticons | code fullscreen",
             paste_postprocess: (editor, args) => {
                 cleanupPastedNode(args.node);
             },
