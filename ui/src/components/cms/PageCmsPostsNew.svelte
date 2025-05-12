@@ -11,6 +11,13 @@
     import EditorField from "@/components/records/fields/EditorField.svelte";
     import MenuPosts from "@/components/cms/MenuPosts.svelte";
     import PostSettingPanel from "@/components/cms/PostSettingPanel.svelte";
+    import { loadCollections } from "@/stores/collections";
+    
+    LoadContentforfilepicker();
+
+    async function LoadContentforfilepicker() {
+        await loadCollections();
+    }
     
     $pageTitle = "New Post";
     onMount(() => {
@@ -167,6 +174,11 @@
                             name: "Content",
                             required: true,
                             convertURLs: false
+                        }}
+                        editorConfig={{
+                            min_height: 450,
+                            height: 450,
+                            placeholder: "Press '/' for commands, or '++' for AI autocomplete..."
                         }}
                         bind:value={lexical}
                     />

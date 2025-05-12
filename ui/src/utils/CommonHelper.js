@@ -1491,6 +1491,7 @@ export default class CommonHelper {
                 "emoticons",
                 "wordcount",
                 "slashcmd", // Pocketcms plugin
+                //"ai", // Pocketcms plugin
             ],
             toolbar: "undo redo | styles | alignleft aligncenter alignright | bold italic forecolor backcolor | bullist numlist checklist | link image_picker table emoticons media | searchreplace | direction code fullscreen",
             extended_valid_elements: "+iframe[src|width|height|name|align|class]",

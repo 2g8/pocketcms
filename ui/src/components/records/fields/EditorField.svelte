@@ -8,6 +8,7 @@
     import FieldLabel from "@/components/records/fields/FieldLabel.svelte";
 
     export let field;
+    export let editorConfig = {};
     export let value = "";
 
     let picker;
@@ -16,9 +17,11 @@
     let mountedTimeoutId = null;
 
     $: conf = Object.assign(CommonHelper.defaultEditorOptions(), {
-        convert_urls: field.convertURLs,
-        relative_urls: false,
-    });
+            convert_urls: field.convertURLs,
+            relative_urls: false,
+        }, 
+        editorConfig || {}
+    );
 
     // normalize value
     // (depending on the editor plugins, `undefined` may throw an error in case the TinyMCE text functions are used)
@@ -30,6 +33,7 @@
         if (typeof value == "undefined") {
             value = "";
         }
+        
 
         // slight "offset" the editor mount to avoid blocking the rendering of the other fields
         mountedTimeoutId = setTimeout(() => {

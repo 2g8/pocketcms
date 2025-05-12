@@ -704,6 +704,6 @@ table {
   border-collapse: collapse;
 }
 .mce-content-body img {       
-  max-width: 75%;
+  max-width: 95%;
   height: auto; /* 保持宽高比 */
 }

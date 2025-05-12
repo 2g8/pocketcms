@@ -245,9 +245,11 @@ func createPostsCollection(txApp core.App) error {
 	posts.Fields.Add(&core.TextField{
 		Name: "plaintext",
 	})
-	posts.Fields.Add(&core.TextField{
-		Name: "feature_image",
-		Max:  254,
+	posts.Fields.Add(&core.FileField{
+		Name:      "feature_image",
+		MaxSelect: 1,
+		MimeTypes: []string{"image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"},
+		Thumbs:    []string{"800x0"},
 	})
 	posts.Fields.Add(&core.BoolField{
 		Name: "featured",
@@ -378,9 +380,11 @@ func createTagsCollection(txApp core.App) error {
 	tags.Fields.Add(&core.TextField{
 		Name: "description",
 	})
-	tags.Fields.Add(&core.TextField{
-		Name: "feature_image",
-		Max:  254,
+	tags.Fields.Add(&core.FileField{
+		Name:      "feature_image",
+		MaxSelect: 1,
+		MimeTypes: []string{"image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"},
+		Thumbs:    []string{"800x0"},
 	})
 	tags.Fields.Add(&core.TextField{
 		Name: "parent_id",
@@ -600,9 +604,11 @@ func createNewslettersCollection(txApp core.App) error {
 	newsletters.Fields.Add(&core.NumberField{
 		Name: "sort_order",
 	})
-	newsletters.Fields.Add(&core.TextField{
-		Name: "header_image",
-		Max:  254,
+	newsletters.Fields.Add(&core.FileField{
+		Name:      "header_image",
+		MaxSelect: 1,
+		MimeTypes: []string{"image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"},
+		Thumbs:    []string{"800x0"},
 	})
 	newsletters.Fields.Add(&core.BoolField{
 		Name: "show_header_icon",
@@ -785,9 +791,11 @@ func createPostsRevisionsCollection(txApp core.App) error {
 		Name: "reason",
 		Max:  50,
 	})
-	postsRevisions.Fields.Add(&core.TextField{
-		Name: "feature_image",
-		Max:  254,
+	postsRevisions.Fields.Add(&core.FileField{
+		Name:      "feature_image",
+		MaxSelect: 1,
+		MimeTypes: []string{"image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"},
+		Thumbs:    []string{"800x0"},
 	})
 	postsRevisions.Fields.Add(&core.TextField{
 		Name: "feature_image_alt",

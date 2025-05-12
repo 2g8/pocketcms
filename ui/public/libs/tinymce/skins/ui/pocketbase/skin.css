@@ -3037,3 +3037,17 @@ body.tox-dialog__disable-scroll {
 .tox .tox-image-tools__sidebar {
   height: 60px;
 }
+
+.tox .tox-autocompleter .tox-menu {
+  min-width: 15em;
+}
+.tox .tox-autocompleter .tox-collection--list .tox-collection__item {
+  padding: 3px 10px;
+}
+.tox .tox-autocompleter .tox-collection__item-checkmark, .tox .tox-autocompleter .tox-collection__item-icon {
+  width: 36px;
+  height: 36px;
+  transform: scale(0.85);
+  border: 1px solid #ddd;
+  background-color: #fff;
+}

@@ -195,6 +195,7 @@
                             text = editor.getContent({ format: "text" });
                         }
                     });
+                    editor.focus();
                 });
 
                 bindHandlers(editor, dispatch);
