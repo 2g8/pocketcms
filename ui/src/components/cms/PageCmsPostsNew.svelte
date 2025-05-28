@@ -176,9 +176,17 @@
                             convertURLs: false
                         }}
                         editorConfig={{
-                            min_height: 450,
-                            height: 450,
-                            placeholder: "Press '/' for commands, or '++' for AI autocomplete..."
+                            min_height: 480,
+                            height: 480,
+                            placeholder: "Press '/' for commands, or '++' for AI autocomplete...",
+                            sparkConfig: {                      
+                                appid: "9e868ce4",
+                                apiKey: "a15d512f688abe35982932ce2f294121",
+                                apiSecret: "N2Y5OTgwMDM4ODJkNWUxZjgwZWE1MzFj",
+                                domain: '4.0Ultra', // Model version
+                                temperature: 0.7,
+                                maxTokens: 4096,
+                            }
                         }}
                         bind:value={lexical}
                     />
@@ -222,8 +230,17 @@
         z-index: var(--page-wrapper-z-index);
     }
     :global(.tox.tox-tinymce.tox-fullscreen){
-        margin-left: calc(var(--appSidebarWidth) + 1px); 
+        margin-left: calc(var(--appSidebarWidth) + 1px);
+        width: calc(100% - var(--appSidebarWidth) - 1px) !important;
         /* margin-left: calc(var(--appSidebarWidth) + var(--pageSidebarWidth) + 1px); 
         */
     }
+    /*
+    :global(.form-field.form-field-editor>label) {
+        display: none !important;
+    }
+    :global(.form-field.form-field-editor>label~.tinymce-wrapper) {
+        padding:2px!important;
+    }
+    */
 </style>
