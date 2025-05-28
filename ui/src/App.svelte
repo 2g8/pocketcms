@@ -6,7 +6,7 @@
     import TinyMCE from "@/components/base/TinyMCE.svelte";
     import Toasts from "@/components/base/Toasts.svelte";
     import Toggler from "@/components/base/Toggler.svelte";
-    import { appName, hideControls, pageTitle } from "@/stores/app";
+    import { appName, hideControls, pageTitle, setPocketCmsSettings } from "@/stores/app";
     import { resetConfirmation } from "@/stores/confirmation";
     import { setErrors } from "@/stores/errors";
     import { superuser } from "@/stores/superuser";
@@ -56,6 +56,7 @@
             });
             $appName = settings?.meta?.appName || "";
             $hideControls = !!settings?.meta?.hideControls;
+            setPocketCmsSettings(settings?.pocketcms || {}); // set to store for other components
         } catch (err) {
             if (!err?.isAbort) {
                 console.warn("Failed to load app settings.", err);

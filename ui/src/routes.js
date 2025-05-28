@@ -5,6 +5,8 @@ import PageCmsPostsNew from "@/components/cms/PageCmsPostsNew.svelte";
 import PageCmsMembersIndex from "@/components/cms/PageCmsMembersIndex.svelte";
 import PageCmsNewslettersIndex from "@/components/cms/PageCmsNewslettersIndex.svelte";
 import PageCmsSubscriptionsIndex from "@/components/cms/PageCmsSubscriptionsIndex.svelte";
+import PageCmsOnboardIndex from "@/components/cms/PageCmsOnboardIndex.svelte";
+
 import PageLogs from "@/components/logs/PageLogs.svelte";
 import PageRecords from "@/components/records/PageRecords.svelte";
 import PageApplication from "@/components/settings/PageApplication.svelte";
@@ -80,6 +82,12 @@ const routes = {
 
     "/subscriptions": wrap({
         component: PageCmsSubscriptionsIndex,
+        conditions: [(_) => ApiClient.authStore.isValid],
+        userData: { showAppSidebar: true },
+    }),
+
+    "/onboard": wrap({
+        component: PageCmsOnboardIndex,
         conditions: [(_) => ApiClient.authStore.isValid],
         userData: { showAppSidebar: true },
     }),

@@ -125,6 +125,7 @@ type settings struct {
 	S3           S3Config           `form:"s3" json:"s3"`
 	Meta         MetaConfig         `form:"meta" json:"meta"`
 	Seo          SeoConfig          `form:"seo" json:"seo"`
+	PocketCMS    PocketCMSConfig    `form:"pocketcms" json:"pocketcms"`
 	RateLimits   RateLimitsConfig   `form:"rateLimits" json:"rateLimits"`
 	TrustedProxy TrustedProxyConfig `form:"trustedProxy" json:"trustedProxy"`
 	Batch        BatchConfig        `form:"batch" json:"batch"`
@@ -149,6 +150,20 @@ func newDefaultSettings() *Settings {
 				HideControls:  false,
 				SenderName:    "Support",
 				SenderAddress: "support@example.com",
+			},
+			PocketCMS: PocketCMSConfig{
+				Theme:     "default",
+				CustomCss:     "",
+				CustomCode:    "",
+				FlagAdminRegMember: false,
+				FlagChooseTheme: false,
+				FlagPubFirstPost: false,
+				FlagWebsiteOnline:  false,
+				FlagOnboardSetting: false,
+				FlagOnboardTheme: false,
+				FlagOnboardEditor: false,
+				FlagOnboardMember: false,
+				FlagOnboardSkip: false,
 			},
 			Seo: SeoConfig{
 				Title:       "PocketCMS",
@@ -295,6 +310,7 @@ func (s *Settings) PostValidate(ctx context.Context, app App) error {
 	return validation.ValidateStructWithContext(ctx, s,
 		validation.Field(&s.Meta),
 		validation.Field(&s.Seo),
+		validation.Field(&s.PocketCMS),
 		validation.Field(&s.Logs),
 		validation.Field(&s.SMTP),
 		validation.Field(&s.S3),
@@ -518,6 +534,32 @@ func (c MetaConfig) Validate() error {
 		validation.Field(&c.AppURL, validation.Required, is.URL),
 		validation.Field(&c.SenderName, validation.Required, validation.Length(1, 255)),
 		validation.Field(&c.SenderAddress, is.EmailFormat, validation.Required),
+	)
+}
+
+// -------------------------------------------------------------------
+
+type PocketCMSConfig struct {
+	Theme				string `form:"theme" json:"theme"`
+	CustomCss			string `form:"customcss" json:"customcss"`
+	CustomCode			string `form:"customcode" json:"customcode"`
+	FlagWebsiteOnline  	bool   `form:"flagWebsiteOnline" json:"flagWebsiteOnline"`
+	FlagChooseTheme  	bool   `form:"flagChooseTheme" json:"flagChooseTheme"`
+	FlagAdminRegMember  bool   `form:"flagAdminRegMember" json:"flagAdminRegMember"`
+	FlagPubFirstPost  	bool   `form:"flagPubFirstPost" json:"flagPubFirstPost"`
+	FlagOnboardSetting  bool   `form:"flagOnboardSetting" json:"flagOnboardSetting"`
+	FlagOnboardTheme	bool   `form:"flagOnboardTheme" json:"flagOnboardTheme"`
+	FlagOnboardEditor	bool   `form:"flagOnboardEditor" json:"flagOnboardEditor"`
+	FlagOnboardMember	bool   `form:"flagOnboardMember" json:"flagOnboardMember"`
+	FlagOnboardSkip		bool   `form:"flagOnboardSkip" json:"flagOnboardSkip"`
+}
+
+// Validate makes MetaConfig validatable by implementing [validation.Validatable] interface.
+func (c PocketCMSConfig) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Theme, validation.Required, validation.Length(1, 200)),
+		validation.Field(&c.CustomCss, validation.Length(0, 10000)),
+		validation.Field(&c.CustomCode, validation.Length(0, 10000)),
 	)
 }
 

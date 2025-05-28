@@ -5,6 +5,7 @@
     import { pageTitle } from "@/stores/app";
     import { addSuccessToast, addErrorToast } from "@/stores/toasts";
     import { confirm } from "@/stores/confirmation";
+    import { push } from "svelte-spa-router";
     import Field from "@/components/base/Field.svelte";
     import PageWrapper from "@/components/base/PageWrapper.svelte";
 
@@ -27,9 +28,9 @@
         isLoading = true;
 
         try {
-            const result = await ApiClient.collection("users").getList(page, perPage, {
+            const result = await ApiClient.collection("members").getList(page, perPage, {
                 filter: searchText ? `name ~ "${searchText}" || email ~ "${searchText}"` : "",
-                sort: "-created",
+                sort: "-created_at",
             });
 
             members = result.items;
@@ -53,7 +54,7 @@
         }
 
         try {
-            await ApiClient.collection("users").delete(member.id);
+            await ApiClient.collection("members").delete(member.id);
             members = members.filter(m => m.id !== member.id);
             totalItems--;
             addSuccessToast("Member successfully deleted");
@@ -91,9 +92,18 @@
         {#if isLoading}
             <div class="loader"></div>
         {:else if members.length === 0}
-            <div class="block txt-center">
-                <h6>No members found</h6>
-                <p class="txt-hint">Try using different search criteria or add new members</p>
+            <div class="empty-state txt-center">
+                <div class="icon-container">
+                    <i class="ri-group-line"></i>
+                </div>
+                <h2>Start building your audience</h2>
+                <p>Use memberships to allow your readers to sign up and subscribe to your content.</p>
+                <div class="actions">
+                    <button class="btn btn-primary" on:click={() => push('/members/new')}>Add yourself as a member to test</button>
+                </div>
+                <div class="secondary-actions">
+                    <p>Have members already? <a href="#" on:click|preventDefault={() => push('/members/new')}>Add them manually</a> or <a href="#" on:click|preventDefault={() => push('/members/import')}>import from CSV</a></p>
+                </div>
             </div>
         {:else}
             <div class="table-wrapper">
@@ -153,10 +163,6 @@
     .table-wrapper {
         overflow-x: auto;
     }
-    .actions {
-        display: flex;
-        gap: 5px;
-    }
     .pagination {
         display: flex;
         justify-content: center;
@@ -166,5 +172,31 @@
     }
     .pagination-info {
         font-size: 0.9rem;
+    }
+    .empty-state {
+        padding: 60px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .icon-container {
+        margin-bottom: 40px;
+    }
+    .icon-container i{
+        font-size: 48px!important;
+        color: var(--primary-color);
+    }
+    .empty-state h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .empty-state p {
+        color: var(--txt-hint-color);
+        margin-bottom: 20px;
+    }
+    .actions {
+        margin-bottom: 15px;
+    }
+    .secondary-actions {
+        font-size: 14px;
     }
 </style>
