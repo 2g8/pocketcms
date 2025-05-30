@@ -119,7 +119,7 @@
                     class="menu-item"
                     aria-label="Members"
                     use:link
-                    use:active={{ path: "/members", className: "current-route" }}
+                    use:active={{ path: "/members/?.*", className: "current-route" }}
                     use:tooltip={{ text: "Members", position: "right" }}
                 >
                     <i class="ri-group-line" />

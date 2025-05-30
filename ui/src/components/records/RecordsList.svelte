@@ -19,6 +19,7 @@
     export let collection;
     export let sort = "";
     export let filter = "";
+    export let showColumns = "";
 
     let scrollWrapper;
     let records = [];
@@ -31,6 +32,7 @@
     let columnsTrigger;
     let hiddenColumns = [];
     let collumnsToHide = [];
+    let visibleFields = [];
     let hiddenColumnsKey = "";
 
     const unusedSuperusersFields = ["verified", "emailVisibility"];
@@ -54,6 +56,14 @@
 
     $: relFields = fields.filter((f) => f.type === "relation");
 
+    $: if(showColumns !== "" && hiddenColumns.length == 0){
+        const showColumnsArray = showColumns.split(',').map(col => col.trim());
+        fields.filter((f) => !showColumnsArray.includes(f.name))
+            .map((f) => {
+                CommonHelper.pushUnique(hiddenColumns, f.id);
+            });
+    }
+    
     $: visibleFields = fields.filter((f) => !hiddenColumns.includes(f.id));
 
     $: if (!$isCollectionsLoading && collection?.id && sort !== -1 && filter !== -1) {
@@ -430,7 +440,7 @@
                 {:else}
                     <tr>
                         <td colspan="99" class="txt-center txt-hint p-xs">
-                            <h6>No records found.</h6>
+                            <h6>No {collection?.name} records found.</h6>
                             {#if filter?.length}
                                 <button
                                     type="button"

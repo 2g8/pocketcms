@@ -49,7 +49,7 @@
     }
 
     onMount(() => {
-        loadFilterComponent();
+        //loadFilterComponent();
     });
 </script>
 

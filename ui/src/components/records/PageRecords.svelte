@@ -199,14 +199,16 @@
             </div>
 
             <div class="btns-group">
+                {#if !$hideControls}
                 <button
                     type="button"
-                    class="btn btn-outline hidden"
+                    class="btn btn-outline"
                     on:click={() => collectionDocsPanel?.show($activeCollection)}
                 >
                     <i class="ri-code-s-slash-line" />
                     <span class="txt">API Preview</span>
                 </button>
+                {/if}
 
                 {#if $activeCollection.type !== "view"}
                     <button type="button" class="btn btn-expanded" on:click={() => recordUpsertPanel?.show()}>

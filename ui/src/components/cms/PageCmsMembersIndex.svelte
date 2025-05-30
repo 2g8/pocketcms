@@ -1,97 +1,247 @@
 <script>
-    import { onMount } from "svelte";
+    import { tick } from "svelte";
+    import { querystring } from "svelte-spa-router";
+    import CommonHelper from "@/utils/CommonHelper";    
     import ApiClient from "@/utils/ApiClient";
-    import CommonHelper from "@/utils/CommonHelper";
-    import { pageTitle } from "@/stores/app";
-    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
-    import { confirm } from "@/stores/confirmation";
-    import { push } from "svelte-spa-router";
-    import Field from "@/components/base/Field.svelte";
+    import tooltip from "@/actions/tooltip";
     import PageWrapper from "@/components/base/PageWrapper.svelte";
+    import RefreshButton from "@/components/base/RefreshButton.svelte";
+    import Searchbar from "@/components/base/Searchbar.svelte";
+    import CollectionDocsPanel from "@/components/collections/CollectionDocsPanel.svelte";
+    import CollectionUpsertPanel from "@/components/collections/CollectionUpsertPanel.svelte";
+    import CollectionsSidebar from "@/components/collections/CollectionsSidebar.svelte";
+    import RecordPreviewPanel from "@/components/records/RecordPreviewPanel.svelte";
+    import RecordUpsertPanel from "@/components/records/RecordUpsertPanel.svelte";
+    import RecordsCount from "@/components/records/RecordsCount.svelte";
+    import RecordsList from "@/components/records/RecordsList.svelte";
+    import { hideControls, pageTitle } from "@/stores/app";
+    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
+    import { superuser } from "@/stores/superuser";
+    import {
+        activeCollection,
+        changeActiveCollectionByIdOrName,
+        collections,
+        isCollectionsLoading,
+        loadCollections,
+    } from "@/stores/collections";
 
-    $pageTitle = "Member Management";
+    const initialQueryParams = new URLSearchParams($querystring);
 
-    let members = [];
-    let isLoading = false;
-    let searchText = "";
-    let page = 1;
-    let perPage = 20;
-    let totalItems = 0;
+    let collectionUpsertPanel;
+    let collectionDocsPanel;
+    let recordUpsertPanel;
+    let recordPreviewPanel;
+    let recordsList;
+    let recordsCount;
+    let filter = initialQueryParams.get("filter") || "";
+    let sort = initialQueryParams.get("sort") || "-@rowid";
+    let selectedCollectionIdOrName = 'members';
+    let totalCount = 0; // used to manully change the count without the need of reloading the recordsCount component
 
-    $: totalPages = Math.ceil(totalItems / perPage);
+    loadCollections(selectedCollectionIdOrName);
 
-    onMount(() => {
-        loadMembers();
-    });
+    $: reactiveParams = new URLSearchParams($querystring);
 
-    async function loadMembers() {
-        isLoading = true;
+    $: collectionQueryParam = 'members';
 
-        try {
-            const result = await ApiClient.collection("members").getList(page, perPage, {
-                filter: searchText ? `name ~ "${searchText}" || email ~ "${searchText}"` : "",
-                sort: "-created_at",
-            });
-
-            members = result.items;
-            totalItems = result.totalItems;
-        } catch (err) {
-            console.error("Failed to load members:", err);
-            addErrorToast("Failed to load member list");
-        }
-
-        isLoading = false;
+    $: if (
+        !$isCollectionsLoading &&
+        collectionQueryParam &&
+        collectionQueryParam != selectedCollectionIdOrName &&
+        collectionQueryParam != $activeCollection?.id &&
+        collectionQueryParam != $activeCollection?.name
+    ) {
+        changeActiveCollectionByIdOrName(collectionQueryParam);
     }
 
-    async function deleteMember(member) {
-        if (!await confirm({
-            title: "Delete Member",
-            content: `Are you sure you want to delete member "${member.name || member.email}"? This action cannot be undone.`,
-            confirmText: "Delete",
-            cancelText: "Cancel",
-        })) {
+    // reset filter and sort on collection change
+    $: if (
+        $activeCollection?.id &&
+        selectedCollectionIdOrName != $activeCollection.id &&
+        selectedCollectionIdOrName != $activeCollection.name
+    ) {
+        reset();
+    }
+
+    $: if ($activeCollection?.id) {
+        normalizeSort();
+    }
+
+    $: if (!$isCollectionsLoading && initialQueryParams.get("recordId")) {
+        showRecordById(initialQueryParams.get("recordId"));
+    }
+
+    // keep the url params in sync
+    $: if (!$isCollectionsLoading && (sort || filter || $activeCollection?.id)) {
+        updateQueryParams();
+    }
+
+    $: $pageTitle = "Members";
+
+    async function showRecordById(recordId) {
+        await tick(); // ensure that the reactive component params are resolved
+
+        $activeCollection?.type === "view"
+            ? recordPreviewPanel.show(recordId)
+            : recordUpsertPanel?.show(recordId);
+    }
+
+    function reset() {
+        selectedCollectionIdOrName = $activeCollection?.id;
+        filter = "";
+        sort = "-@rowid";
+
+        normalizeSort();
+
+        updateQueryParams({ recordId: null });
+
+        // close any open collection panels
+        collectionUpsertPanel?.forceHide();
+        collectionDocsPanel?.hide();
+    }
+
+    // ensures that the sort fields exist in the collection
+    async function normalizeSort() {
+        if (!sort) {
+            return; // nothing to normalize
+        }
+
+        const collectionFields = CommonHelper.getAllCollectionIdentifiers($activeCollection);
+
+        const sortFields = sort.split(",").map((f) => {
+            if (f.startsWith("+") || f.startsWith("-")) {
+                return f.substring(1);
+            }
+            return f;
+        });
+
+        // invalid sort expression or missing sort field
+        if (sortFields.filter((f) => collectionFields.includes(f)).length != sortFields.length) {
+            if ($activeCollection?.type != "view") {
+                sort = "-@rowid"; // all collections with exception to the view has this field
+            } else if (collectionFields.includes("created")) {
+                // common autodate field
+                sort = "-created";
+            } else {
+                sort = "";
+            }
+        }
+    }
+
+    function updateQueryParams(extra = {}) {
+        const queryParams = Object.assign(
+            {
+                collection: $activeCollection?.id || "",
+                filter: filter,
+                sort: sort,
+            },
+            extra,
+        );
+
+        CommonHelper.replaceHashQueryParams(queryParams);
+    }
+
+    //add self to the member
+    async function addCurrentSuperuserToMember(){
+        if($superuser?.email === undefined){
             return;
         }
-
+        const password = CommonHelper.randomString(13);
+        const name = ($superuser.email).split("@")[0].trim();
+        const username = "admin_"+name.toLowerCase();
+        const data = {
+            "email": $superuser.email,
+            "name": name,
+            "username": username,
+            "slug": CommonHelper.slugify(username),
+            "password": password,
+            "passwordConfirm": password,
+            "created_by": "admin",
+            "email_disabled": false,
+            "verified": true,
+        }
         try {
-            await ApiClient.collection("members").delete(member.id);
-            members = members.filter(m => m.id !== member.id);
-            totalItems--;
-            addSuccessToast("Member successfully deleted");
+            const record = await ApiClient.collection('members').create(data);
+            if(record){
+                totalCount++;
+            }
         } catch (err) {
-            console.error("Failed to delete member:", err);
-            addErrorToast("Failed to delete member");
+            console.error("Failed to add Current Superuser To Member:", err);
+            addErrorToast("Failed to add Current Superuser To Member");
         }
-    }
-
-    function handleSearch() {
-        page = 1;
-        loadMembers();
-    }
-
-    function changePage(newPage) {
-        if (newPage < 1 || newPage > totalPages || newPage === page) {
-            return;
-        }
-        page = newPage;
-        loadMembers();
     }
 </script>
 
-<PageWrapper>
-    <header class="page-header">
-        <h1>Member Management</h1>
-        <div class="flex-fill"></div>
-        <form class="search-form" on:submit|preventDefault={handleSearch}>
-            <Field type="text" bind:value={searchText} placeholder="Search members..." class="search-input" />
-            <button type="submit" class="btn btn-secondary btn-sm">Search</button>
-        </form>
-    </header>
+{#if $isCollectionsLoading && !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <span class="loader loader-lg" />
+            <h1>Loading collections...</h1>
+        </div>
+    </PageWrapper>
+{:else if !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <div class="icon">
+                <i class="ri-database-2-line" />
+            </div>
+            {#if $hideControls}
+                <h1 class="m-b-10">You don't have any collections yet.</h1>
+            {:else}
+                <h1 class="m-b-10">Create your first collection to add records!</h1>
+                <button
+                    type="button"
+                    class="btn btn-expanded-lg btn-lg"
+                    on:click={() => collectionUpsertPanel?.show()}
+                >
+                    <i class="ri-add-line" />
+                    <span class="txt">Create new collection</span>
+                </button>
+            {/if}
+        </div>
+    </PageWrapper>
+{:else}
 
-    <div class="page-content">
-        {#if isLoading}
-            <div class="loader"></div>
-        {:else if members.length === 0}
+    <PageWrapper class="flex-content">
+        <header class="page-header">
+            <nav class="breadcrumbs">
+                <div class="breadcrumb-item">PocketCMS</div>
+                <div class="breadcrumb-item">{$activeCollection.name ? $activeCollection.name.charAt(0).toUpperCase() + $activeCollection.name.slice(1) : ''}</div>
+            </nav>
+
+            <div class="inline-flex gap-5">
+                {#if !$hideControls}
+                    <button
+                        type="button"
+                        aria-label="Edit collection"
+                        class="btn btn-transparent btn-circle"
+                        use:tooltip={{ text: "Edit collection", position: "right" }}
+                        on:click={() => collectionUpsertPanel?.show($activeCollection)}
+                    >
+                        <i class="ri-settings-4-line" />
+                    </button>
+                {/if}
+
+                <RefreshButton
+                    on:refresh={() => {
+                        recordsList?.load();
+                        recordsCount?.reload();
+                    }}
+                />
+            </div>
+
+            <div class="btns-group">
+                {#if $activeCollection.type !== "view"}
+                    <button type="button" class="btn btn-expanded" on:click={() => recordUpsertPanel?.show()}>
+                        <i class="ri-add-line" />
+                        <span class="txt">Add Member</span>
+                    </button>
+                {/if}
+            </div>
+        </header>
+
+        <div class="clearfix m-b-sm" />
+        {#if (totalCount == 0 && filter == "")}
             <div class="empty-state txt-center">
                 <div class="icon-container">
                     <i class="ri-group-line"></i>
@@ -99,80 +249,102 @@
                 <h2>Start building your audience</h2>
                 <p>Use memberships to allow your readers to sign up and subscribe to your content.</p>
                 <div class="actions">
-                    <button class="btn btn-primary" on:click={() => push('/members/new')}>Add yourself as a member to test</button>
+                    <button class="btn btn-primary" on:click={() => addCurrentSuperuserToMember()}>Add yourself as a member to test</button>
                 </div>
                 <div class="secondary-actions">
-                    <p>Have members already? <a href="#" on:click|preventDefault={() => push('/members/new')}>Add them manually</a> or <a href="#" on:click|preventDefault={() => push('/members/import')}>import from CSV</a></p>
+                    <p>Have members already? <a href="javascript:void(0);" on:click={() => recordUpsertPanel?.show()}>Add them manually</a> or <a href="#" on:click|preventDefault={() => push('/members/import')}>import from CSV</a></p>
                 </div>
-            </div>
-        {:else}
-            <div class="table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Registration Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each members as member (member.id)}
-                            <tr>
-                                <td>{member.name || "--"}</td>
-                                <td>{member.email}</td>
-                                <td>{CommonHelper.formatDate(member.created)}</td>
-                                <td>
-                                    <div class="actions">
-                                        <button class="btn btn-sm btn-outline" on:click={() => deleteMember(member)}>Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
             </div>
 
-            {#if totalPages > 1}
-                <div class="pagination">
-                    <button class="btn btn-sm" disabled={page === 1} on:click={() => changePage(page - 1)}>Previous</button>
-                    <span class="pagination-info">Page {page} of {totalPages}</span>
-                    <button class="btn btn-sm" disabled={page === totalPages} on:click={() => changePage(page + 1)}>Next</button>
-                </div>
-            {/if}
+        {:else}
+
+            <Searchbar
+                value={filter}
+                autocompleteCollection={$activeCollection}
+                on:submit={(e) => (filter = e.detail)}
+            />
+            <RecordsList
+                bind:this={recordsList}
+                collection={$activeCollection}
+                showColumns="id,email,username,name,last_seen,created_at,created_by,updated_at"
+                bind:filter
+                bind:sort
+                on:select={(e) => {
+                    updateQueryParams({
+                        recordId: e.detail.id,
+                    });
+
+                    let showModel = e.detail._partial ? e.detail.id : e.detail;
+
+                    $activeCollection.type === "view"
+                        ? recordPreviewPanel?.show(showModel)
+                        : recordUpsertPanel?.show(showModel);
+                }}
+                on:delete={() => {
+                    recordsCount?.reload();
+                }}
+                on:new={() => recordUpsertPanel?.show()}
+            />
         {/if}
-    </div>
-</PageWrapper>
+
+        <svelte:fragment slot="footer">
+            <RecordsCount
+                bind:this={recordsCount}
+                class="m-r-auto txt-sm txt-hint"
+                collection={$activeCollection}
+                {filter}
+                bind:totalCount
+            />
+        </svelte:fragment>
+    </PageWrapper>
+{/if}
+
+<CollectionUpsertPanel
+    bind:this={collectionUpsertPanel}
+    on:truncate={() => {
+        recordsList?.load();
+        recordsCount?.reload();
+    }}
+/>
+
+<CollectionDocsPanel bind:this={collectionDocsPanel} />
+
+<RecordUpsertPanel
+    bind:this={recordUpsertPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+    on:save={(e) => {
+        if (filter) {
+            // if there is applied filter, reload the count since we
+            // don't know after the save whether the record satisfies it
+            recordsCount?.reload();
+        } else if (e.detail.isNew) {
+            totalCount++;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+    on:delete={(e) => {
+        if (!filter || recordsList?.hasRecord(e.detail.id)) {
+            totalCount--;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+/>
+
+<RecordPreviewPanel
+    bind:this={recordPreviewPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+/>
+
 
 <style>
-    .page-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .flex-fill {
-        flex: 1;
-    }
-    .search-form {
-        display: flex;
-        gap: 10px;
-    }
-    .search-input {
-        width: 250px;
-    }
-    .table-wrapper {
-        overflow-x: auto;
-    }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-        gap: 15px;
-    }
-    .pagination-info {
-        font-size: 0.9rem;
-    }
     .empty-state {
         padding: 60px 20px;
         max-width: 600px;
