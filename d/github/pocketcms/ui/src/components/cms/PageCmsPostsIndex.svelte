@@ -35,14 +35,14 @@
     let recordsCount;
     let filter = initialQueryParams.get("filter") || "";
     let sort = initialQueryParams.get("sort") || "-@rowid";
-    let selectedCollectionIdOrName = 'members';
+    let selectedCollectionIdOrName = 'posts'; // 修改为 posts
     let totalCount = 0; // used to manully change the count without the need of reloading the recordsCount component
 
     loadCollections(selectedCollectionIdOrName);
 
     $: reactiveParams = new URLSearchParams($querystring);
 
-    $: collectionQueryParam = 'members';
+    $: collectionQueryParam = 'posts'; // 修改为 posts
 
     $: if (
         !$isCollectionsLoading &&
@@ -76,7 +76,7 @@
         //updateQueryParams();
     }
 
-    $: $pageTitle = "Members";
+    $: $pageTitle = "Subscriptions"; // 修改为 Subscriptions
 
     async function showRecordById(recordId) {
         await tick(); // ensure that the reactive component params are resolved
@@ -139,36 +139,6 @@
         );
 
         CommonHelper.replaceHashQueryParams(queryParams);
-    }
-
-    //add self to the member
-    async function addCurrentSuperuserToMember(){
-        if($superuser?.email === undefined){
-            return;
-        }
-        const password = CommonHelper.randomString(13);
-        const name = ($superuser.email).split("@")[0].trim();
-        const username = "admin_"+name.toLowerCase();
-        const data = {
-            "email": $superuser.email,
-            "name": name,
-            "username": username,
-            "slug": CommonHelper.slugify(username),
-            "password": password,
-            "passwordConfirm": password,
-            "created_by": "admin",
-            "email_disabled": false,
-            "verified": true,
-        }
-        try {
-            const record = await ApiClient.collection('members').create(data);
-            if(record){
-                totalCount++;
-            }
-        } catch (err) {
-            console.error("Failed to add Current Superuser To Member:", err);
-            addErrorToast("Failed to add Current Superuser To Member");
-        }
     }
 </script>
 
@@ -234,30 +204,13 @@
                 {#if $activeCollection.type !== "view"}
                     <button type="button" class="btn btn-expanded" on:click={() => recordUpsertPanel?.show()}>
                         <i class="ri-add-line" />
-                        <span class="txt">Add Member</span>
+                        <span class="txt">Add Subscription</span>
                     </button>
                 {/if}
             </div>
         </header>
 
         <div class="clearfix m-b-sm" />
-        {#if (totalCount == 0 && filter == "")}
-            <div class="empty-state txt-center">
-                <div class="icon-container">
-                    <i class="ri-group-line"></i>
-                </div>
-                <h2>Start building your audience</h2>
-                <p>Use memberships to allow your readers to sign up and subscribe to your content.</p>
-                <div class="actions">
-                    <button class="btn btn-primary" on:click={() => addCurrentSuperuserToMember()}>Add yourself as a member to test</button>
-                </div>
-                <div class="secondary-actions">
-                    <p>Have members already? <a href="javascript:void(0);" on:click={() => recordUpsertPanel?.show()}>Add them manually</a> or <a href="#" on:click|preventDefault={() => push('/members/import')}>import from CSV</a></p>
-                </div>
-            </div>
-
-        {:else}
-
             <Searchbar
                 value={filter}
                 autocompleteCollection={$activeCollection}
@@ -266,7 +219,7 @@
             <RecordsList
                 bind:this={recordsList}
                 collection={$activeCollection}
-                showColumns="id,email,username,name,last_seen,created_at,created_by,updated_at"
+                showColumns="id,name,status,visibility,created_at,updated_at"
                 bind:filter
                 bind:sort
                 on:select={(e) => {
@@ -285,7 +238,6 @@
                 }}
                 on:new={() => recordUpsertPanel?.show()}
             />
-        {/if}
 
         <svelte:fragment slot="footer">
             <RecordsCount
@@ -342,33 +294,3 @@
         updateQueryParams({ recordId: null });
     }}
 />
-
-
-<style>
-    .empty-state {
-        padding: 60px 20px;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    .icon-container {
-        margin-bottom: 40px;
-    }
-    .icon-container i{
-        font-size: 48px!important;
-        color: var(--primary-color);
-    }
-    .empty-state h2 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-    .empty-state p {
-        color: var(--txt-hint-color);
-        margin-bottom: 20px;
-    }
-    .actions {
-        margin-bottom: 15px;
-    }
-    .secondary-actions {
-        font-size: 14px;
-    }
-</style>

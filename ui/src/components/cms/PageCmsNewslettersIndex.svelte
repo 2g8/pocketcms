@@ -1,210 +1,296 @@
 <script>
-    import { onMount } from "svelte";
+    import { tick } from "svelte";
+    import { querystring } from "svelte-spa-router";
+    import CommonHelper from "@/utils/CommonHelper";    
     import ApiClient from "@/utils/ApiClient";
-    import CommonHelper from "@/utils/CommonHelper";
-    import { pageTitle } from "@/stores/app";
-    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
-    import { confirm } from "@/stores/confirmation";
-    import { link } from "svelte-spa-router";
-    import Field from "@/components/base/Field.svelte";
+    import tooltip from "@/actions/tooltip";
     import PageWrapper from "@/components/base/PageWrapper.svelte";
+    import RefreshButton from "@/components/base/RefreshButton.svelte";
+    import Searchbar from "@/components/base/Searchbar.svelte";
+    import CollectionDocsPanel from "@/components/collections/CollectionDocsPanel.svelte";
+    import CollectionUpsertPanel from "@/components/collections/CollectionUpsertPanel.svelte";
+    import CollectionsSidebar from "@/components/collections/CollectionsSidebar.svelte";
+    import RecordPreviewPanel from "@/components/records/RecordPreviewPanel.svelte";
+    import RecordUpsertPanel from "@/components/records/RecordUpsertPanel.svelte";
+    import RecordsCount from "@/components/records/RecordsCount.svelte";
+    import RecordsList from "@/components/records/RecordsList.svelte";
+    import { hideControls, pageTitle } from "@/stores/app";
+    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
+    import { superuser } from "@/stores/superuser";
+    import {
+        activeCollection,
+        changeActiveCollectionByIdOrName,
+        collections,
+        isCollectionsLoading,
+        loadCollections,
+    } from "@/stores/collections";
 
-    $pageTitle = "Email Newsletters";
+    const initialQueryParams = new URLSearchParams($querystring);
 
-    let newsletters = [];
-    let isLoading = false;
-    let searchText = "";
-    let page = 1;
-    let perPage = 20;
-    let totalItems = 0;
+    let collectionUpsertPanel;
+    let collectionDocsPanel;
+    let recordUpsertPanel;
+    let recordPreviewPanel;
+    let recordsList;
+    let recordsCount;
+    let filter = initialQueryParams.get("filter") || "";
+    let sort = initialQueryParams.get("sort") || "-@rowid";
+    let selectedCollectionIdOrName = 'newsletters'; // 修改为 newsletters
+    let totalCount = 0; // used to manully change the count without the need of reloading the recordsCount component
 
-    $: totalPages = Math.ceil(totalItems / perPage);
+    loadCollections(selectedCollectionIdOrName);
 
-    onMount(() => {
-        loadNewsletters();
-    });
+    $: reactiveParams = new URLSearchParams($querystring);
 
-    async function loadNewsletters() {
-        isLoading = true;
+    $: collectionQueryParam = 'newsletters'; // 修改为 newsletters
 
-        try {
-            const result = await ApiClient.collection("newsletters").getList(page, perPage, {
-                filter: searchText ? `subject ~ "${searchText}" || content ~ "${searchText}"` : "",
-                sort: "-created",
-            });
-
-            newsletters = result.items;
-            totalItems = result.totalItems;
-        } catch (err) {
-            console.error("Failed to load newsletters:", err);
-            addErrorToast("Failed to load newsletter list");
-        }
-
-        isLoading = false;
+    $: if (
+        !$isCollectionsLoading &&
+        collectionQueryParam &&
+        collectionQueryParam != selectedCollectionIdOrName &&
+        collectionQueryParam != $activeCollection?.id &&
+        collectionQueryParam != $activeCollection?.name
+    ) {
+        changeActiveCollectionByIdOrName(collectionQueryParam);
     }
 
-    async function deleteNewsletter(newsletter) {
-        if (!await confirm({
-            title: "Delete Newsletter",
-            content: `Are you sure you want to delete newsletter "${newsletter.subject}"? This action cannot be undone.`,
-            confirmText: "Delete",
-            cancelText: "Cancel",
-        })) {
-            return;
+    // reset filter and sort on collection change
+    $: if (
+        $activeCollection?.id &&
+        selectedCollectionIdOrName != $activeCollection.id &&
+        selectedCollectionIdOrName != $activeCollection.name
+    ) {
+        reset();
+    }
+
+    $: if ($activeCollection?.id) {
+        normalizeSort();
+    }
+
+    $: if (!$isCollectionsLoading && initialQueryParams.get("recordId")) {
+        showRecordById(initialQueryParams.get("recordId"));
+    }
+
+    // keep the url params in sync
+    $: if (!$isCollectionsLoading && (sort || filter || $activeCollection?.id)) {
+        //updateQueryParams();
+    }
+
+    $: $pageTitle = "Newsletters"; // 修改为 Newsletters
+
+    async function showRecordById(recordId) {
+        await tick(); // ensure that the reactive component params are resolved
+
+        $activeCollection?.type === "view"
+            ? recordPreviewPanel.show(recordId)
+            : recordUpsertPanel?.show(recordId);
+    }
+
+    function reset() {
+        selectedCollectionIdOrName = $activeCollection?.id;
+        filter = "";
+        sort = "-@rowid";
+
+        normalizeSort();
+
+        updateQueryParams({ recordId: null });
+
+        // close any open collection panels
+        collectionUpsertPanel?.forceHide();
+        collectionDocsPanel?.hide();
+    }
+
+    // ensures that the sort fields exist in the collection
+    async function normalizeSort() {
+        if (!sort) {
+            return; // nothing to normalize
         }
 
-        try {
-            await ApiClient.collection("newsletters").delete(newsletter.id);
-            newsletters = newsletters.filter(n => n.id !== newsletter.id);
-            totalItems--;
-            addSuccessToast("Newsletter successfully deleted");
-        } catch (err) {
-            console.error("Failed to delete newsletter:", err);
-            addErrorToast("Failed to delete newsletter");
+        const collectionFields = CommonHelper.getAllCollectionIdentifiers($activeCollection);
+
+        const sortFields = sort.split(",").map((f) => {
+            if (f.startsWith("+") || f.startsWith("-")) {
+                return f.substring(1);
+            }
+            return f;
+        });
+
+        // invalid sort expression or missing sort field
+        if (sortFields.filter((f) => collectionFields.includes(f)).length != sortFields.length) {
+            if ($activeCollection?.type != "view") {
+                sort = "-@rowid"; // all collections with exception to the view has this field
+            } else if (collectionFields.includes("created")) {
+                // common autodate field
+                sort = "-created";
+            } else {
+                sort = "";
+            }
         }
     }
 
-    async function sendNewsletter(newsletter) {
-        if (!await confirm({
-            title: "Send Newsletter",
-            content: `Are you sure you want to send newsletter "${newsletter.subject}" to all subscribers?`,
-            confirmText: "Send",
-            cancelText: "Cancel",
-        })) {
-            return;
-        }
+    function updateQueryParams(extra = {}) {
+        const queryParams = Object.assign(
+            {
+                collection: $activeCollection?.id || "",
+                filter: filter,
+                sort: sort,
+            },
+            extra,
+        );
 
-        try {
-            // 这里应该调用发送通讯的API
-            // await ApiClient.newsletters.send(newsletter.id);
-            addSuccessToast("Newsletter send request submitted");
-        } catch (err) {
-            console.error("Failed to send newsletter:", err);
-            addErrorToast("Failed to send newsletter");
-        }
-    }
-
-    function handleSearch() {
-        page = 1;
-        loadNewsletters();
-    }
-
-    function changePage(newPage) {
-        if (newPage < 1 || newPage > totalPages || newPage === page) {
-            return;
-        }
-        page = newPage;
-        loadNewsletters();
+        CommonHelper.replaceHashQueryParams(queryParams);
     }
 </script>
 
-<PageWrapper>
-    <header class="page-header">
-        <h1>
-            <i class="ri-mail-send-line" aria-hidden="true"></i>
-            <span class="txt">Email Newsletters</span>
-        </h1>
-
-        <div class="page-header-actions">
-            <a href="/newsletters/create" class="btn btn-primary" use:link>
-                <i class="ri-add-line" aria-hidden="true"></i>
-                <span class="txt">Create Newsletter</span>
-            </a>
+{#if $isCollectionsLoading && !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <span class="loader loader-lg" />
+            <h1>Loading collections...</h1>
         </div>
-    </header>
-
-    <div class="wrapper">
-        <div class="search-bar">
-            <form on:submit|preventDefault={handleSearch}>
-                <Field type="text" bind:value={searchText} placeholder="Search newsletters..." />
-                <button type="submit" class="btn btn-secondary">Search</button>
-            </form>
-        </div>
-
-        {#if isLoading}
-            <div class="loader"></div>
-        {:else if newsletters.length === 0}
-            <div class="alert alert-info">
-                <i class="ri-information-line" aria-hidden="true"></i>
-                <span class="txt">No newsletters found.</span>
+    </PageWrapper>
+{:else if !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <div class="icon">
+                <i class="ri-database-2-line" />
             </div>
-        {:else}
-            <div class="table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Sent</th>
-                            <th class="col-action">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each newsletters as newsletter (newsletter.id)}
-                            <tr>
-                                <td>
-                                    <a href="/newsletters/{newsletter.id}" use:link>{newsletter.subject}</a>
-                                </td>
-                                <td>
-                                    <span class="label {newsletter.status === 'sent' ? 'success' : 'warning'}">
-                                        {newsletter.status === 'sent' ? 'Sent' : 'Draft'}
-                                    </span>
-                                </td>
-                                <td>{CommonHelper.formatDate(newsletter.created)}</td>
-                                <td>{newsletter.sentAt ? CommonHelper.formatDate(newsletter.sentAt) : '--'}</td>
-                                <td>
-                                    <div class="actions">
-                                        {#if newsletter.status !== 'sent'}
-                                            <button class="btn btn-sm btn-outline" on:click={() => sendNewsletter(newsletter)}>
-                                                <i class="ri-send-plane-line" aria-hidden="true"></i>
-                                                <span class="txt">Send</span>
-                                            </button>
-                                        {/if}
-                                        <button class="btn btn-sm btn-outline" on:click={() => deleteNewsletter(newsletter)}>
-                                            <i class="ri-delete-bin-line" aria-hidden="true"></i>
-                                            <span class="txt">Delete</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            </div>
-
-            {#if totalPages > 1}
-                <div class="pagination">
-                    <button class="btn btn-sm" disabled={page === 1} on:click={() => changePage(page - 1)}>Previous</button>
-                    <span class="pagination-info">Page {page} of {totalPages}</span>
-                    <button class="btn btn-sm" disabled={page === totalPages} on:click={() => changePage(page + 1)}>Next</button>
-                </div>
+            {#if $hideControls}
+                <h1 class="m-b-10">You don't have any collections yet.</h1>
+            {:else}
+                <h1 class="m-b-10">Create your first collection to add records!</h1>
+                <button
+                    type="button"
+                    class="btn btn-expanded-lg btn-lg"
+                    on:click={() => collectionUpsertPanel?.show()}
+                >
+                    <i class="ri-add-line" />
+                    <span class="txt">Create new collection</span>
+                </button>
             {/if}
-        {/if}
-    </div>
-</PageWrapper>
+        </div>
+    </PageWrapper>
+{:else}
 
-<style>
-    .search-bar {
-        margin-bottom: 20px;
-    }
-    .search-bar form {
-        display: flex;
-        gap: 10px;
-        max-width: 500px;
-    }
-    .actions {
-        display: flex;
-        gap: 5px;
-    }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-        gap: 15px;
-    }
-    .pagination-info {
-        font-size: 0.9rem;
-    }
-</style>
+    <PageWrapper class="flex-content">
+        <header class="page-header">
+            <nav class="breadcrumbs">
+                <div class="breadcrumb-item">PocketCMS</div>
+                <div class="breadcrumb-item">{$activeCollection.name ? $activeCollection.name.charAt(0).toUpperCase() + $activeCollection.name.slice(1) : ''}</div>
+            </nav>
+
+            <div class="inline-flex gap-5">
+                {#if !$hideControls}
+                    <button
+                        type="button"
+                        aria-label="Edit collection"
+                        class="btn btn-transparent btn-circle"
+                        use:tooltip={{ text: "Edit collection", position: "right" }}
+                        on:click={() => collectionUpsertPanel?.show($activeCollection)}
+                    >
+                        <i class="ri-settings-4-line" />
+                    </button>
+                {/if}
+
+                <RefreshButton
+                    on:refresh={() => {
+                        recordsList?.load();
+                        recordsCount?.reload();
+                    }}
+                />
+            </div>
+
+            <div class="btns-group">
+                {#if $activeCollection.type !== "view"}
+                    <button type="button" class="btn btn-expanded" on:click={() => recordUpsertPanel?.show()}>
+                        <i class="ri-add-line" />
+                        <span class="txt">Add Newsletter</span>
+                    </button>
+                {/if}
+            </div>
+        </header>
+
+        <div class="clearfix m-b-sm" />
+            <Searchbar
+                value={filter}
+                autocompleteCollection={$activeCollection}
+                on:submit={(e) => (filter = e.detail)}
+            />
+            <RecordsList
+                bind:this={recordsList}
+                collection={$activeCollection}
+                showColumns="id,name,status,visibility,created_at,updated_at"
+                bind:filter
+                bind:sort
+                on:select={(e) => {
+                    updateQueryParams({
+                        recordId: e.detail.id,
+                    });
+
+                    let showModel = e.detail._partial ? e.detail.id : e.detail;
+
+                    $activeCollection.type === "view"
+                        ? recordPreviewPanel?.show(showModel)
+                        : recordUpsertPanel?.show(showModel);
+                }}
+                on:delete={() => {
+                    recordsCount?.reload();
+                }}
+                on:new={() => recordUpsertPanel?.show()}
+            />
+
+        <svelte:fragment slot="footer">
+            <RecordsCount
+                bind:this={recordsCount}
+                class="m-r-auto txt-sm txt-hint"
+                collection={$activeCollection}
+                {filter}
+                bind:totalCount
+            />
+        </svelte:fragment>
+    </PageWrapper>
+{/if}
+
+<CollectionUpsertPanel
+    bind:this={collectionUpsertPanel}
+    on:truncate={() => {
+        recordsList?.load();
+        recordsCount?.reload();
+    }}
+/>
+
+<CollectionDocsPanel bind:this={collectionDocsPanel} />
+
+<RecordUpsertPanel
+    bind:this={recordUpsertPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+    on:save={(e) => {
+        if (filter) {
+            // if there is applied filter, reload the count since we
+            // don't know after the save whether the record satisfies it
+            recordsCount?.reload();
+        } else if (e.detail.isNew) {
+            totalCount++;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+    on:delete={(e) => {
+        if (!filter || recordsList?.hasRecord(e.detail.id)) {
+            totalCount--;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+/>
+
+<RecordPreviewPanel
+    bind:this={recordPreviewPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+/>

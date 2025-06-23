@@ -101,12 +101,12 @@
             </div>
             
             <div class="col-lg-12">
-                <Field class="form-field" name="author" let:uniqueId>
+                <Field class="form-field" name="created_by" let:uniqueId>
                     <label for={uniqueId}>Author</label>
                     <input 
                         type="text"
                         id={uniqueId}
-                        bind:value={postData.author}
+                        bind:value={postData.created_by}
                         placeholder="Post author"
                     />
                 </Field>

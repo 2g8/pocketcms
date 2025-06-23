@@ -1,250 +1,296 @@
 <script>
-    import { onMount } from "svelte";
+    import { tick } from "svelte";
+    import { querystring } from "svelte-spa-router";
+    import CommonHelper from "@/utils/CommonHelper";    
     import ApiClient from "@/utils/ApiClient";
-    import CommonHelper from "@/utils/CommonHelper";
-    import { pageTitle } from "@/stores/app";
-    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
-    import { confirm } from "@/stores/confirmation";
-    import Field from "@/components/base/Field.svelte";
+    import tooltip from "@/actions/tooltip";
     import PageWrapper from "@/components/base/PageWrapper.svelte";
+    import RefreshButton from "@/components/base/RefreshButton.svelte";
+    import Searchbar from "@/components/base/Searchbar.svelte";
+    import CollectionDocsPanel from "@/components/collections/CollectionDocsPanel.svelte";
+    import CollectionUpsertPanel from "@/components/collections/CollectionUpsertPanel.svelte";
+    import CollectionsSidebar from "@/components/collections/CollectionsSidebar.svelte";
+    import RecordPreviewPanel from "@/components/records/RecordPreviewPanel.svelte";
+    import RecordUpsertPanel from "@/components/records/RecordUpsertPanel.svelte";
+    import RecordsCount from "@/components/records/RecordsCount.svelte";
+    import RecordsList from "@/components/records/RecordsList.svelte";
+    import { hideControls, pageTitle } from "@/stores/app";
+    import { addSuccessToast, addErrorToast } from "@/stores/toasts";
+    import { superuser } from "@/stores/superuser";
+    import {
+        activeCollection,
+        changeActiveCollectionByIdOrName,
+        collections,
+        isCollectionsLoading,
+        loadCollections,
+    } from "@/stores/collections";
 
-    $pageTitle = "Subscription Management";
+    const initialQueryParams = new URLSearchParams($querystring);
 
-    let subscriptions = [];
-    let isLoading = false;
-    let searchText = "";
-    let page = 1;
-    let perPage = 20;
-    let totalItems = 0;
-    let statusFilter = "all";
+    let collectionUpsertPanel;
+    let collectionDocsPanel;
+    let recordUpsertPanel;
+    let recordPreviewPanel;
+    let recordsList;
+    let recordsCount;
+    let filter = initialQueryParams.get("filter") || "";
+    let sort = initialQueryParams.get("sort") || "-@rowid";
+    let selectedCollectionIdOrName = 'subscriptions'; // 修改为 subscriptions
+    let totalCount = 0; // used to manully change the count without the need of reloading the recordsCount component
 
-    $: totalPages = Math.ceil(totalItems / perPage);
+    loadCollections(selectedCollectionIdOrName);
 
-    onMount(() => {
-        loadSubscriptions();
-    });
+    $: reactiveParams = new URLSearchParams($querystring);
 
-    async function loadSubscriptions() {
-        isLoading = true;
+    $: collectionQueryParam = 'subscriptions'; // 修改为 subscriptions
 
-        try {
-            let filter = "";
-            
-            if (searchText) {
-                filter += `user.name ~ "${searchText}" || user.email ~ "${searchText}"`;
+    $: if (
+        !$isCollectionsLoading &&
+        collectionQueryParam &&
+        collectionQueryParam != selectedCollectionIdOrName &&
+        collectionQueryParam != $activeCollection?.id &&
+        collectionQueryParam != $activeCollection?.name
+    ) {
+        changeActiveCollectionByIdOrName(collectionQueryParam);
+    }
+
+    // reset filter and sort on collection change
+    $: if (
+        $activeCollection?.id &&
+        selectedCollectionIdOrName != $activeCollection.id &&
+        selectedCollectionIdOrName != $activeCollection.name
+    ) {
+        reset();
+    }
+
+    $: if ($activeCollection?.id) {
+        normalizeSort();
+    }
+
+    $: if (!$isCollectionsLoading && initialQueryParams.get("recordId")) {
+        showRecordById(initialQueryParams.get("recordId"));
+    }
+
+    // keep the url params in sync
+    $: if (!$isCollectionsLoading && (sort || filter || $activeCollection?.id)) {
+        //updateQueryParams();
+    }
+
+    $: $pageTitle = "Subscriptions"; // 修改为 Subscriptions
+
+    async function showRecordById(recordId) {
+        await tick(); // ensure that the reactive component params are resolved
+
+        $activeCollection?.type === "view"
+            ? recordPreviewPanel.show(recordId)
+            : recordUpsertPanel?.show(recordId);
+    }
+
+    function reset() {
+        selectedCollectionIdOrName = $activeCollection?.id;
+        filter = "";
+        sort = "-@rowid";
+
+        normalizeSort();
+
+        updateQueryParams({ recordId: null });
+
+        // close any open collection panels
+        collectionUpsertPanel?.forceHide();
+        collectionDocsPanel?.hide();
+    }
+
+    // ensures that the sort fields exist in the collection
+    async function normalizeSort() {
+        if (!sort) {
+            return; // nothing to normalize
+        }
+
+        const collectionFields = CommonHelper.getAllCollectionIdentifiers($activeCollection);
+
+        const sortFields = sort.split(",").map((f) => {
+            if (f.startsWith("+") || f.startsWith("-")) {
+                return f.substring(1);
             }
-            
-            if (statusFilter !== "all") {
-                if (filter) filter += " && ";
-                filter += `status = "${statusFilter}"`;
-            }
+            return f;
+        });
 
-            const result = await ApiClient.collection("subscriptions").getList(page, perPage, {
+        // invalid sort expression or missing sort field
+        if (sortFields.filter((f) => collectionFields.includes(f)).length != sortFields.length) {
+            if ($activeCollection?.type != "view") {
+                sort = "-@rowid"; // all collections with exception to the view has this field
+            } else if (collectionFields.includes("created")) {
+                // common autodate field
+                sort = "-created";
+            } else {
+                sort = "";
+            }
+        }
+    }
+
+    function updateQueryParams(extra = {}) {
+        const queryParams = Object.assign(
+            {
+                collection: $activeCollection?.id || "",
                 filter: filter,
-                sort: "-created",
-                expand: "user",
-            });
+                sort: sort,
+            },
+            extra,
+        );
 
-            subscriptions = result.items;
-            totalItems = result.totalItems;
-        } catch (err) {
-            console.error("Failed to load subscriptions:", err);
-            addErrorToast("Failed to load subscription list");
-        }
-
-        isLoading = false;
-    }
-
-    async function cancelSubscription(subscription) {
-        if (!await confirm({
-            title: "Cancel Subscription",
-            content: `Are you sure you want to cancel this subscription? This action cannot be undone.`,
-            confirmText: "Cancel Subscription",
-            cancelText: "Back",
-        })) {
-            return;
-        }
-
-        try {
-            // 这里应该调用取消订阅的API
-            // 例如：await ApiClient.subscriptions.cancel(subscription.id);
-            subscription.status = "cancelled";
-            addSuccessToast("Subscription successfully cancelled");
-        } catch (err) {
-            console.error("Failed to cancel subscription:", err);
-            addErrorToast("Failed to cancel subscription");
-        }
-    }
-
-    function handleSearch() {
-        page = 1;
-        loadSubscriptions();
-    }
-
-    function handleStatusChange() {
-        page = 1;
-        loadSubscriptions();
-    }
-
-    function changePage(newPage) {
-        if (newPage < 1 || newPage > totalPages || newPage === page) {
-            return;
-        }
-        page = newPage;
-        loadSubscriptions();
-    }
-
-    function getStatusLabel(status) {
-        switch (status) {
-            case "active": return "Active";
-            case "cancelled": return "Cancelled";
-            case "expired": return "Expired";
-            default: return status;
-        }
-    }
-
-    function getStatusClass(status) {
-        switch (status) {
-            case "active": return "success";
-            case "cancelled": return "danger";
-            case "expired": return "warning";
-            default: return "";
-        }
+        CommonHelper.replaceHashQueryParams(queryParams);
     }
 </script>
 
-<PageWrapper>
-    <header class="page-header">
-        <h1>
-            <i class="ri-exchange-dollar-line" aria-hidden="true"></i>
-            <span class="txt">Subscription Management</span>
-        </h1>
-    </header>
-
-    <div class="wrapper">
-        <div class="filters">
-            <div class="search-bar">
-                <form on:submit|preventDefault={handleSearch}>
-                    <Field type="text" bind:value={searchText} placeholder="Search members..." />
-                    <button type="submit" class="btn btn-secondary">Search</button>
-                </form>
-            </div>
-            
-            <div class="status-filter">
-                <label for="status-filter">Status Filter:</label>
-                <select id="status-filter" bind:value={statusFilter} on:change={handleStatusChange}>
-                    <option value="all">All</option>
-                    <option value="active">Active</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="expired">Expired</option>
-                </select>
-            </div>
+{#if $isCollectionsLoading && !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <span class="loader loader-lg" />
+            <h1>Loading collections...</h1>
         </div>
-
-        {#if isLoading}
-            <div class="loader"></div>
-        {:else if subscriptions.length === 0}
-            <div class="alert alert-info">
-                <i class="ri-information-line" aria-hidden="true"></i>
-                <span class="txt">No subscriptions found.</span>
+    </PageWrapper>
+{:else if !$collections.length}
+    <PageWrapper center>
+        <div class="placeholder-section m-b-base">
+            <div class="icon">
+                <i class="ri-database-2-line" />
             </div>
-        {:else}
-            <div class="table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Member</th>
-                            <th>Plan</th>
-                            <th>Status</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each subscriptions as subscription (subscription.id)}
-                            <tr>
-                                <td>
-                                    {#if subscription.expand?.user}
-                                        {subscription.expand.user.name || subscription.expand.user.email}
-                                    {:else}
-                                        --
-                                    {/if}
-                                </td>
-                                <td>{subscription.plan || "--"}</td>
-                                <td>
-                                    <span class="label {getStatusClass(subscription.status)}">
-                                        {getStatusLabel(subscription.status)}
-                                    </span>
-                                </td>
-                                <td>{CommonHelper.formatDate(subscription.startDate)}</td>
-                                <td>{subscription.endDate ? CommonHelper.formatDate(subscription.endDate) : "--"}</td>
-                                <td>
-                                    <div class="actions">
-                                        {#if subscription.status === "active"}
-                                            <button class="btn btn-sm btn-outline" on:click={() => cancelSubscription(subscription)}>
-                                                <i class="ri-close-circle-line" aria-hidden="true"></i>
-                                                <span class="txt">Cancel</span>
-                                            </button>
-                                        {/if}
-                                        <a href="/subscriptions/{subscription.id}" class="btn btn-sm btn-outline">
-                                            <i class="ri-eye-line" aria-hidden="true"></i>
-                                            <span class="txt">View</span>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            </div>
-
-            {#if totalPages > 1}
-                <div class="pagination">
-                    <button class="btn btn-sm" disabled={page === 1} on:click={() => changePage(page - 1)}>Previous</button>
-                    <span class="pagination-info">Page {page} of {totalPages}</span>
-                    <button class="btn btn-sm" disabled={page === totalPages} on:click={() => changePage(page + 1)}>Next</button>
-                </div>
+            {#if $hideControls}
+                <h1 class="m-b-10">You don't have any collections yet.</h1>
+            {:else}
+                <h1 class="m-b-10">Create your first collection to add records!</h1>
+                <button
+                    type="button"
+                    class="btn btn-expanded-lg btn-lg"
+                    on:click={() => collectionUpsertPanel?.show()}
+                >
+                    <i class="ri-add-line" />
+                    <span class="txt">Create new collection</span>
+                </button>
             {/if}
-        {/if}
-    </div>
-</PageWrapper>
+        </div>
+    </PageWrapper>
+{:else}
 
-<style>
-    .filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 20px;
-        align-items: center;
-    }
-    .search-bar form {
-        display: flex;
-        gap: 10px;
-        max-width: 500px;
-    }
-    .status-filter {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .status-filter select {
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
-    .actions {
-        display: flex;
-        gap: 5px;
-    }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-        gap: 15px;
-    }
-    .pagination-info {
-        font-size: 0.9rem;
-    }
-</style>
+    <PageWrapper class="flex-content">
+        <header class="page-header">
+            <nav class="breadcrumbs">
+                <div class="breadcrumb-item">PocketCMS</div>
+                <div class="breadcrumb-item">{$activeCollection.name ? $activeCollection.name.charAt(0).toUpperCase() + $activeCollection.name.slice(1) : ''}</div>
+            </nav>
+
+            <div class="inline-flex gap-5">
+                {#if !$hideControls}
+                    <button
+                        type="button"
+                        aria-label="Edit collection"
+                        class="btn btn-transparent btn-circle"
+                        use:tooltip={{ text: "Edit collection", position: "right" }}
+                        on:click={() => collectionUpsertPanel?.show($activeCollection)}
+                    >
+                        <i class="ri-settings-4-line" />
+                    </button>
+                {/if}
+
+                <RefreshButton
+                    on:refresh={() => {
+                        recordsList?.load();
+                        recordsCount?.reload();
+                    }}
+                />
+            </div>
+
+            <div class="btns-group">
+                {#if $activeCollection.type !== "view"}
+                    <button type="button" class="btn btn-expanded" on:click={() => recordUpsertPanel?.show()}>
+                        <i class="ri-add-line" />
+                        <span class="txt">Add Subscription</span>
+                    </button>
+                {/if}
+            </div>
+        </header>
+
+        <div class="clearfix m-b-sm" />
+            <Searchbar
+                value={filter}
+                autocompleteCollection={$activeCollection}
+                on:submit={(e) => (filter = e.detail)}
+            />
+            <RecordsList
+                bind:this={recordsList}
+                collection={$activeCollection}
+                showColumns="id,name,status,visibility,created_at,updated_at"
+                bind:filter
+                bind:sort
+                on:select={(e) => {
+                    updateQueryParams({
+                        recordId: e.detail.id,
+                    });
+
+                    let showModel = e.detail._partial ? e.detail.id : e.detail;
+
+                    $activeCollection.type === "view"
+                        ? recordPreviewPanel?.show(showModel)
+                        : recordUpsertPanel?.show(showModel);
+                }}
+                on:delete={() => {
+                    recordsCount?.reload();
+                }}
+                on:new={() => recordUpsertPanel?.show()}
+            />
+
+        <svelte:fragment slot="footer">
+            <RecordsCount
+                bind:this={recordsCount}
+                class="m-r-auto txt-sm txt-hint"
+                collection={$activeCollection}
+                {filter}
+                bind:totalCount
+            />
+        </svelte:fragment>
+    </PageWrapper>
+{/if}
+
+<CollectionUpsertPanel
+    bind:this={collectionUpsertPanel}
+    on:truncate={() => {
+        recordsList?.load();
+        recordsCount?.reload();
+    }}
+/>
+
+<CollectionDocsPanel bind:this={collectionDocsPanel} />
+
+<RecordUpsertPanel
+    bind:this={recordUpsertPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+    on:save={(e) => {
+        if (filter) {
+            // if there is applied filter, reload the count since we
+            // don't know after the save whether the record satisfies it
+            recordsCount?.reload();
+        } else if (e.detail.isNew) {
+            totalCount++;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+    on:delete={(e) => {
+        if (!filter || recordsList?.hasRecord(e.detail.id)) {
+            totalCount--;
+        }
+
+        recordsList?.reloadLoadedPages();
+    }}
+/>
+
+<RecordPreviewPanel
+    bind:this={recordPreviewPanel}
+    collection={$activeCollection}
+    on:hide={() => {
+        updateQueryParams({ recordId: null });
+    }}
+/>

@@ -3,6 +3,8 @@
     import { push } from "svelte-spa-router";
     import { addSuccessToast, addErrorToast } from "@/stores/toasts";
     import { pageTitle } from "@/stores/app";
+    import { superuser } from "@/stores/superuser";
+    import { confirm } from "@/stores/confirmation";
     import ApiClient from "@/utils/ApiClient";
     import CommonHelper from "@/utils/CommonHelper";
     import PageWrapper from "@/components/base/PageWrapper.svelte";
@@ -21,17 +23,17 @@
     
     $pageTitle = "New Post";
     onMount(() => {
-        // 设置CSS变量，在当前页面z-index为120，其他页面为0
+        // Set CSS variable, z-index is 120 for current page, 0 for other pages
         document.documentElement.style.setProperty('--page-wrapper-z-index', '120');
         requestAnimationFrame(() => {
-            // 延迟到下一帧获取宽度，布局计算可能已完成
+            // Delay to next frame to get width, layout calculation may be completed
             let pageSidebar = document.querySelector('.page-sidebar');
             let sidebarWidth = pageSidebar.offsetWidth;
             document.documentElement.style.setProperty('--pageSidebarWidth', `${sidebarWidth}px`);
         });
     });
     onDestroy(() => {
-        // 页面销毁时，恢复CSS变量
+        // When page is destroyed, restore CSS variables
         document.documentElement.style.setProperty('--page-wrapper-z-index', '0');
         document.documentElement.style.setProperty('--pageSidebarWidth', `235px`);
     })
@@ -40,7 +42,7 @@
 
     let title = "";
     let slug = "";
-    let lexical = ""; // 使用lexical替代content
+    let lexical = ""; // Use lexical instead of content
     let feature_image = "";
     let featured = false;
     let type = "post";
@@ -50,10 +52,15 @@
     let codeinjection_head = "";
     let codeinjection_foot = "";
     let canonical_url = "";
+    let published_at = Date.now();
+    let tags = "";
+    let created_by = "";
+    let member_id = "";
+    let email_recipient_filter = "all";
     let show_title_and_feature_image = true;
     let isSubmitting = false;
     
-    // 文件上传相关变量
+    // File upload related variables
     let uploadedFiles = [];
     let deletedFileNames = [];
     let record = { id: "new_post", collectionId: "posts" };
@@ -70,17 +77,43 @@
             return;
         }
         
-        // 如果没有slug，根据标题生成
+        // If no slug, generate from title
         if (!slug) {
             generateSlug();
         }
 
+        // Get current user information
+        const email = $superuser.email;
+        try {
+            // 通过ApiClient读取members collection，检查是否存在email为当前superuser的记录
+            const membersResponse = await ApiClient.collection('members').getList(1, 1, {
+                filter: `email="${email}"`
+            });
+            
+            // 如果不存在email为当前superuser的记录，则提示是否添加
+            const userExist = membersResponse.items.length > 0 ? membersResponse.items[0] : null;
+            
+            // Check if user exists
+            if (!userExist) {
+                confirm("Add yourself as a member to publishing. Do it now?", addCurrentSuperuserToMember);
+                return;
+            }else{
+                // If user exists, set created_by and member_id
+                created_by = membersResponse.items[0].name;
+                member_id = membersResponse.items[0].id;
+            }
+        } catch (error) {
+            console.error("Failed to check member:", error);
+            addErrorToast(error.message || "Failed to check member, please try again");
+            return;
+        }
+        
         isSubmitting = true;
         try {
-            // 创建FormData对象来处理文件上传
+            // Create FormData object to handle file uploads
             const formData = new FormData();
             
-            // 添加基本字段
+            // Add basic fields
             formData.append("title", title);
             formData.append("slug", slug);
             formData.append("lexical", lexical);
@@ -88,6 +121,11 @@
             formData.append("featured", featured);
             formData.append("type", type);
             formData.append("status", status);
+            formData.append("published_at", published_at);
+            formData.append("tags", tags);
+            formData.append("created_by", created_by);
+            formData.append("member_id", member_id);
+            formData.append("email_recipient_filter", email_recipient_filter);
             formData.append("visibility", visibility);
             formData.append("custom_excerpt", custom_excerpt);
             formData.append("codeinjection_head", codeinjection_head);
@@ -95,12 +133,12 @@
             formData.append("canonical_url", canonical_url);
             formData.append("show_title_and_feature_image", show_title_and_feature_image);
             
-            // 添加上传的文件
+            // Add uploaded files
             for (const file of uploadedFiles) {
                 formData.append("feature_image+", file);
             }
             
-            // 处理删除的文件
+            // Process deleted files
             for (const name of deletedFileNames) {
                 formData.append("feature_image-", name);
             }
@@ -108,12 +146,40 @@
             await ApiClient.collection("posts").create(formData);
 
             addSuccessToast("Post created successfully");
-            push("/cms/posts");
+            push("/posts");
         } catch (error) {
             console.error("Failed to create post:", error);
             addErrorToast(error.message || "Failed to save, please try again");
         } finally {
             isSubmitting = false;
+        }
+    }
+
+    // Add self to the member
+    async function addCurrentSuperuserToMember(){
+        if($superuser?.email === undefined){
+            return;
+        }
+        const password = CommonHelper.randomString(13);
+        const name = ($superuser.email).split("@")[0].trim();
+        const username = "admin_"+name.toLowerCase();
+        const data = {
+            "email": $superuser.email,
+            "name": name,
+            "username": username,
+            "slug": CommonHelper.slugify(username),
+            "password": password,
+            "passwordConfirm": password,
+            "created_by": "admin",
+            "email_disabled": false,
+            "verified": true,
+        }
+        try {
+            const record = await ApiClient.collection('members').create(data);
+            handleSubmit();
+        } catch (err) {
+            console.error("Failed to add Current Superuser To Member:", err);
+            addErrorToast("Failed to add Current Superuser To Member");
         }
     }
 </script>
@@ -212,14 +278,16 @@
     bind:this={settingPanel} 
     postData={{ 
         slug, 
-        publishDate: "", 
-        tags: "", 
+        published_at, 
+        tags:"", 
         visibility, 
         excerpt: custom_excerpt, 
-        author: "" 
+        created_by
     }} 
     on:save={(e) => {
         slug = e.detail.slug;
+        tags = e.detail.tags;
+        published_at = e.detail.published_at;
         visibility = e.detail.visibility;
         custom_excerpt = e.detail.excerpt;
     }}
